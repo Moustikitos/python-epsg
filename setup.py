@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+import os
 import sys
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -27,8 +28,8 @@ class build_ctypes_ext(build_ext):
 
     def get_ext_filename(self, ext_name):
         if getattr(self, "_ctypes", False):
-            return ext_name + (
-                '.dll' if sys.platform.startswith("win") else ".so"
+            return ext_name.replace(".", os.sep) + (
+                '.dll' if sys.platform.startswith("win") else '.so'
             )
         return super().get_ext_filename(ext_name)
 
