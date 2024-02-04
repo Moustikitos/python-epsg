@@ -1,0 +1,363 @@
+# -*- encoding:utf-8 -*-
+
+import io
+import math
+import ctypes
+
+from urllib.request import urlopen
+
+_TORAD = math.pi / 180.0
+_TODEG = 180.0 / math.pi
+
+
+def _dms(value):
+    if value == 0:
+        return f"{0:03d}°{0:02d}'{0.0:.5f}\""
+    s = -1 if value < 0 else 1
+    value = abs(value)
+    degrees = math.floor(value)
+    value = (value - degrees) * 60
+    minutes = int(math.floor(value))
+    secondes = (value - minutes) * 60
+    return \
+        f"{'+' if s > 0 else '-'}{degrees:03d}°{minutes:02d}'{secondes:.5f}\""
+
+
+class Geodesic(ctypes.Structure):
+    """
+    `ctypes` structure for geodesic coordinates
+
+    Attributes:
+        longitude (float): longitude value of geodesic coordinates in degrees
+        latitude (float): latitude value of geodesic coordinates in degrees
+        altitude (float): elevation of the geodesic coordinates in meters
+
+    ```python
+    >>> dublin = epsg.Geodesic(-6.272877, 53.344606, 105.)
+    >>> dublin
+    <lon=-6.272877 lat=53.344606 alt=105.000>
+    ```
+    """
+    _fields_ = [
+        ("longitude", ctypes.c_double),
+        ("latitude", ctypes.c_double),
+        ("altitude", ctypes.c_double)
+    ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        args = list(args)
+        for i in range(min(2, len(args))):
+            args[i] *= _TORAD
+        for key in [k for k in kwargs if k in ["longitude", "latitude"]]:
+            kwargs[key] *= _TORAD
+        ctypes.Structure.__init__(self, *args, **kwargs)
+
+    def __repr__(self) -> str:
+        return \
+            f"<lon={_dms(self.longitude * _TODEG)} " +\
+            f"lat={_dms(self.latitude * _TODEG)} " +\
+            f"alt={self.altitude}>"
+
+    def maidenhead(self, level: int = 4) -> str:
+        """
+        Convert coordinates to maidenhead.
+
+        ```python
+        >>> dublin.maidenhead()
+        'IO63ui72gq'
+        >>> dublin.maidenhead(level=6)
+        'IO63ui72gq19dh'
+        ```
+
+        Arguments:
+            level (int): precision level of maidenhead
+        Returns:
+            Maidenhead `str`
+        """
+        base = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        longitude = (self.longitude * _TODEG + 180) % 360
+        latitude = (self.latitude * _TODEG + 90) % 180
+
+        result = ""
+
+        lon_idx = longitude / 20
+        lat_idx = latitude / 10
+        result += \
+            base[int(math.floor(lon_idx))] + \
+            base[int(math.floor(lat_idx))]
+
+        coef = 10.
+        for i in range(level):
+            lon_idx = (lon_idx - math.floor(lon_idx)) * coef
+            lat_idx = (lat_idx - math.floor(lat_idx)) * coef
+            if coef == 10.:
+                result += "%d%d" % (math.floor(lon_idx), math.floor(lat_idx))
+            else:
+                result += (
+                    base[int(math.floor(lon_idx))] +
+                    base[int(math.floor(lat_idx))]
+                ).lower()
+            coef = 24. if coef == 10. else 10.
+
+        return result
+
+    @staticmethod
+    def from_maidenhead(maidenhead: str):
+        """
+        Return Geodesic object from maidenhead string.
+
+        Arguments:
+            maidenhead (str): maidenhead string
+        Returns:
+            `epsg.geodesy.Geodesic` coordinates
+        """
+        base = "ABCDEFGHIJKLMNOPQRSTUVWX"
+        longitude = latitude = 0
+        eps = 18./2.
+        lon_str = list(reversed(maidenhead[0::2].upper()))
+        lat_str = list(reversed(maidenhead[1::2].upper()))
+
+        for i, j in zip(lon_str[:-1], lat_str[:-1]):
+            if i in "0123456789":
+                longitude = (longitude + int(i)) / 10.
+                latitude = (latitude + int(j)) / 10.
+                eps /= 10.
+            else:
+                longitude = (longitude + base.index(i)) / 24.
+                latitude = (latitude + base.index(j)) / 24.
+                eps /= 24.
+
+        longitude = (longitude + base.index(lon_str[-1])) * 20. + eps
+        latitude = (latitude + base.index(lat_str[-1])) * 10. + eps
+
+        result = Geodesic(longitude=longitude-180, latitude=latitude-90)
+        setattr(result, "precision", (eps, eps))
+        return result
+
+    def georef(self, digit: int = 8) -> str:
+        """
+        Convert coordinates to georef.
+
+        ```python
+        >>> dublin.georef()
+        'MKJJ43322037'
+        >>> dublin.georef(digit=6)
+        'MKJJ433203'
+        ```
+
+        Arguments:
+            digit (int): digit number of georef (can be 4, 6 or 8)
+        Returns:
+            Georef `str`
+        """
+        base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        longitude = (self.longitude*_TODEG + 180) % 360
+        latitude = (self.latitude*_TODEG + 90) % 180
+
+        result = ""
+
+        lon_idx = longitude / 15.
+        lat_idx = latitude / 15.
+        result += \
+            base[int(math.floor(lon_idx))] + \
+            base[int(math.floor(lat_idx))]
+
+        lon_idx = (lon_idx - math.floor(lon_idx)) * 15.
+        lat_idx = (lat_idx - math.floor(lat_idx)) * 15.
+        result += \
+            base[int(math.floor(lon_idx))] + \
+            base[int(math.floor(lat_idx))]
+
+        lon_idx = (lon_idx - math.floor(lon_idx)) * 60.
+        lat_idx = (lat_idx - math.floor(lat_idx)) * 60.
+
+        lon = "%02d" % lon_idx
+        lat = "%02d" % lat_idx
+
+        if digit == 6:
+            lon_idx = 10 - (lon_idx - math.floor(lon_idx)) * 10.
+            lat_idx = 10 - (lat_idx - math.floor(lat_idx)) * 10.
+            lat += "%01d" % math.floor(lon_idx)
+            lon += "%01d" % math.floor(lat_idx)
+        elif digit == 8:
+            lon_idx = 100 - (lon_idx - math.floor(lon_idx)) * 100.
+            lat_idx = 100 - (lat_idx - math.floor(lat_idx)) * 100.
+            lat += "%02d" % math.floor(lon_idx)
+            lon += "%02d" % math.floor(lat_idx)
+
+        return result + lon + lat
+
+    @staticmethod
+    def from_georef(georef: str):
+        """
+        Return Geodesic object from georef.
+
+        ```python
+        >>> epsg.Geodesic.from_georef('MKJJ43322037')
+        <lon=-006°16'21.900" lat=+053°20'41.100" alt=0.000>
+        >>> epsg.Geodesic.from_georef('MKJJ433220')
+        <lon=-006°15'57.000" lat=+053°22'45.000" alt=0.000>
+        ```
+
+        Arguments:
+            georef (str): georef string
+        Returns:
+            `epsg.geodesy.Geodesic` coordinates
+        """
+        base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        eps = 1./2./60.
+
+        if len(georef) == 12:
+            longitude = (1-int(georef[10:])/100. + int(georef[4:6]))/60.
+            latitude = (1-int(georef[6:8])/100. + int(georef[8:10]))/60.
+            eps /= 100.
+        elif len(georef) == 10:
+            longitude = (1-int(georef[9])/10. + int(georef[4:6]))/60.
+            latitude = (1-int(georef[6])/10. + int(georef[7:9]))/60.
+            eps /= 10.
+        else:
+            longitude = int(georef[4:6])/60.
+            latitude = int(georef[6:])/60.
+
+        longitude = (
+            (longitude + base.index(georef[2])) / 15. + base.index(georef[0])
+        ) * 15. + eps
+        latitude = (
+            (latitude + base.index(georef[3])) / 15. + base.index(georef[1])
+        ) * 15. + eps
+
+        result = Geodesic(longitude=longitude - 180, latitude=latitude - 90)
+        setattr(result, "precision", (eps, eps))
+        return result
+
+    def gars(self) -> str:
+        """
+        Get the associated GARS Area (5minx5min tile).
+
+        ```python
+        >>> dublin.gars()
+        '348MY16'
+        ```
+        """
+        base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        longitude = (self.longitude*_TODEG+180) % 360
+        latitude = (self.latitude*_TODEG+90) % 180
+
+        lon_idx = longitude / 0.5
+        lat_idx = latitude / 0.5
+
+        quadrant = \
+            "%03d" % (lon_idx+1) + \
+            base[int(math.floor(lat_idx // 24))] + \
+            base[int(math.floor(lat_idx % 24))]
+
+        lon_num_idx = (lon_idx - math.floor(lon_idx)) * 2.
+        lat_num_idx = (lat_idx - math.floor(lat_idx)) * 2.
+        j = math.floor(lon_num_idx)
+        i = 1-math.floor(lat_num_idx)
+        number = i*(j+1)+j+1
+
+        lon_key_idx = (lon_num_idx - math.floor(lon_num_idx)) * 3.
+        lat_key_idx = (lat_num_idx - math.floor(lat_num_idx)) * 3.
+        j = math.floor(lon_key_idx)
+        i = 2-math.floor(lat_key_idx)
+        key = i*(j+1)+j+1
+
+        return quadrant + str(number) + str(key)
+
+    @staticmethod
+    def from_gars(gars: str, anchor: str = ""):
+        """
+        Return Geodesic object from gars. Optional anchor value to define
+        where to handle 5minx5min tile.
+
+        ```python
+        >>> epsg.Geodesic.from_gars('348MY16', anchor="nw")
+        <lon=-006°20'0.000" lat=+053°25'0.000" alt=0.000>
+        >>> epsg.Geodesic.from_gars('348MY16')
+        <lon=-006°17'30.000" lat=+053°22'30.000" alt=0.000>
+        ```
+
+        Arguments:
+            gars (str): gars string
+            anchor (str): tile anchor (nesw)
+        Returns:
+            `epsg.geodesy.Geodesic` coordinates
+        """
+        base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+        longitude = 5. / 60. * (
+            0 if "w" in anchor else 1 if "e" in anchor else 0.5
+        )
+        latitude = 5. / 60. * (
+            0 if "s" in anchor else 1 if "n" in anchor else 0.5
+        )
+
+        key = gars[6]
+        longitude += 5. / 60. * (
+            0 if key in "147" else 1 if key in "258" else 2
+        )
+        latitude += 5. / 60. * (
+            0 if key in "789" else 1 if key in "456" else 2
+        )
+
+        number = gars[5]
+        longitude += 15. / 60. * (0 if number in "13" else 1)
+        latitude += 15. / 60. * (0 if number in "34" else 1)
+
+        longitude += (int(gars[:3])-1) * 0.5
+        latitude += (base.index(gars[3]) * 24 + base.index(gars[4])) * 0.5
+
+        return Geodesic(longitude=longitude - 180, latitude=latitude - 90)
+
+    def url_load_location(self, url, **kwargs):
+        """
+        Return a static map image data from map provider.
+
+        ```python
+        >>> # below a mapbox-static-map url centered on [lon, lat] with a red
+        >>> # pin, width, height and zoom to be specified on call
+        >>> url = "https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static"
+        ... "/pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0"
+        ... "/%(width)dx%(height)d?access_token=%(token)s"
+        >>> data = dublin.url_load_location(
+        ...    url, zoom=15, width=600, height=400, token="xx-xxxxxx-xx"
+        ... )
+        >>> # see `epsg.geodesy.Geodesic.dump_location`
+        >>> with io.open("dump.png", "wb") as f:
+        ...    f.write(data)
+        ```
+
+        Arguments:
+            url (str): map provider url containing `%(lon)f` and `%(lat)f`
+                       format expression to be replaced by longitude and
+                       latitude found in GPS data
+            **kwargs (dict): key-value pairs to match entries in url according
+                             to python string formatting
+        Returns:
+            Image data as `bytes` (py3) or `str` (py2)
+        """
+        kwargs.update(
+            lon=self.longitude * _TODEG,
+            lat=self.latitude * _TODEG
+        )
+        try:
+            opener = urlopen(url % kwargs)
+        except Exception as error:
+            print("%r" % error)
+        else:
+            return opener.read()
+
+    def dump_location(self, name, url, **kwargs):
+        """
+        Dump a static map image from map provider into filesystem.
+
+        Arguments:
+            name (str): a valid filepath
+            url (str): map provider url containing `%(lon)f` and `%(lat)f`
+                       format expression to be replaced by longitude and
+                       latitude found in GPS data
+            **kwargs (dict): key-value pairs to match entries in url according
+                             to python string formatting
+        """
+        with io.open(name, "wb") as fileobj:
+            fileobj.write(self.url_load_location(url, **kwargs))
