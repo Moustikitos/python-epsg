@@ -1,5 +1,6 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
+
 #include "./geoid.h"
 
 // y = a * 5/4 * ln(tan(pi/4 + 2phi/5)) : forward formula

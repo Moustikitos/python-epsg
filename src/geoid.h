@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -71,7 +71,6 @@ typedef struct{
 
 typedef struct{
     Datum datum;
-    Unit unit;
     double lambda0;
     double phi0;
     double phi1;
@@ -118,19 +117,6 @@ typedef struct{
     Geodesic lla;
     Geographic xya;
 }Point;
-
-// typedef struct{
-//     short sign;
-//     double degree;
-//     double minute;
-//     double second;
-// }Dms;
-
-// typedef struct{
-//     short sign;
-//     double degree;
-//     double minute;
-// }Dmm;
 
 static long factorial(long n){
     long result = 1;

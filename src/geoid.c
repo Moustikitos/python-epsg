@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification,
@@ -31,55 +31,6 @@
 EXPORT double MD(double a, double e, double latitude){
 	return meridian_distance(a,e,latitude);
 }
-
-// EXPORT Dms dms(double value){
-// 	Dms result;
-// 	double degrees, minutes, seconds;
-
-// 	result.sign = (value > 0) - (value < 0);
-// 	value = fmod(fabs(value), 360);
-
-// 	degrees = floor(value);
-// 	minutes = (value - degrees) * 60;
-// 	seconds = (minutes - floor(minutes)) * 60;
-// 	minutes = floor(minutes);
-
-// 	if (seconds >= (60. - EPS)){
-// 		seconds = 0;
-// 		minutes += 1;
-// 	}
-// 	if (minutes >= (60. - EPS)){
-// 		minutes = 0;
-// 		degrees += 1;
-// 	}
-
-// 	result.degree = degrees;
-// 	result.minute = minutes;
-// 	result.second = seconds;
-
-// 	return result;
-// }
-
-// EXPORT Dmm dmm(double value){
-// 	Dmm result;
-// 	double degrees, minutes;
-
-// 	result.sign = (value > 0) - (value < 0);
-// 	value = fmod(fabs(value), 360);
-
-// 	degrees = floor(value);
-// 	minutes = (value - degrees) * 60;
-
-// 	if (minutes >= (60. - EPS)){
-// 		minutes = 0;
-// 		degrees += 1;
-// 	}
-
-// 	result.degree = degrees;
-// 	result.minute = minutes;
-
-// 	return result;
-// }
 
 /*
 Source :
@@ -214,7 +165,7 @@ EXPORT Vincenty_dest destination(Ellipsoid *ellps, Geodesic *start, Vincenty_dis
 	return result;
 }
 
-EXPORT Geocentric dat2dat(Datum *src, Datum *dst, Geocentric *xyz){
+EXPORT Geocentric xyz_dat2dat(Datum *src, Datum *dst, Geocentric *xyz){
 	Geocentric result;
 	double rx, ry, rz, ds;
 
@@ -226,6 +177,24 @@ EXPORT Geocentric dat2dat(Datum *src, Datum *dst, Geocentric *xyz){
 	result.x = (src->dx - dst->dx) + (1+ds)*(    xyz->x - rz*xyz->y + ry*xyz->z);
 	result.y = (src->dy - dst->dy) + (1+ds)*( rz*xyz->x +    xyz->y - rx*xyz->z);
 	result.z = (src->dz - dst->dz) + (1+ds)*(-ry*xyz->x + rx*xyz->y +    xyz->z);
+
+	return result;
+}
+
+EXPORT Geodesic lla_dat2dat(Datum *src, Datum *dst, Geodesic *lla){
+	static Geodesic result;
+	Geodesic tmp;
+	Geocentric xyz_src, xyz_dst;
+
+	tmp.longitude = lla->longitude + src->prime.longitude; //* DEGREE2RAD;
+	tmp.latitude = lla->latitude;
+	tmp.altitude = lla->altitude;
+
+	xyz_src = geocentric(&src->ellipsoid, lla);
+	xyz_dst = xyz_dat2dat(src, dst, &xyz_src);
+
+	result = geodesic(&dst->ellipsoid, &xyz_src);
+	result.longitude -= dst->prime.longitude; // * DEGREE2RAD;
 
 	return result;
 }

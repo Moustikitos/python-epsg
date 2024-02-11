@@ -1,5 +1,6 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
+
 #include "./geoid.h"
 
 static double F3 = 3*2;
@@ -16,7 +17,7 @@ EXPORT Geographic tmerc_forward(Crs *crs, Geodesic *lla){
 	m   = meridian_distance(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, lla->latitude) - meridian_distance(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, crs->phi0);
 	v   = nhu(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, lla->latitude);
 	B   = v/rho(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, lla->latitude);
-	lc  = cos(lla->latitude)*(lla->longitude-crs->lambda0);
+	lc  = cos(lla->latitude)*(lla->longitude - crs->lambda0);
 	t   = tan(lla->latitude);
 	lc2 = lc*lc;
 

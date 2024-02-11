@@ -1,5 +1,6 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
+
 #include "./geoid.h"
 
 static void coef(double *result, double a, double e, double lambda0, double phi0, double phi1, double phi2, double x0, double y0, double k0){

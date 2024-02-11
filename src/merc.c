@@ -1,5 +1,6 @@
-// Copyright (c) 2015-2021, THOORENS Bruno
+// Copyright (c) 2015-2024, THOORENS Bruno
 // All rights reserved.
+
 #include "./geoid.h"
 
 EXPORT Geographic merc_forward(Crs *crs, Geodesic *lla){
