@@ -2,46 +2,87 @@
 
 import os
 import sys
+import math
 import json
 import ctypes
 
 import urllib.request
 import urllib.error
 
+from typing import Union
+
+DATA = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".dataset")
+
+# alias table to translate https://apps.epsg.org/api/v1/Transformation
+# parameter code to epsg.EpsgElement attribute name
 TOWGS84_PARAMETER_CODES = {
     8605: "dx", 8606: "dy", 8607: "dz",
     8608: "rx", 8609: "ry", 8610: "rz",
     8611: "ds"
 }
 
-DATA = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".dataset")
+PROJ_METHOD_CODES = {
+    1024: "merc", 1026: "merc", 1108: "merc", 9804: "merc", 9805: "merc",
+    9659: "latlong",
+    9807: "tmerc",
+    9812: "omerc",
+}
+
+PROJ_PARAMETER_CODES = {
+    8805: "k0",
+    8801: "phi0",
+    8802: "lambda0",
+    8806: "x0",
+    8807: "y0",
+    8813: "azimuth",
+    8823: "phi1",
+    8824: "phi2",
+}
 
 
-def _fetch(url):
+class DatasetConnexionError(Exception):
+    "to be raised when EPSG API is not available"
+
+
+class DatasetNotFound(Exception):
+    "to be raised when API call status code is not 200"
+
+
+class DatasetIdentificationError(Exception):
+    "to be raised when EpsgElement initialized with no info"
+
+
+class DatumInitializationError(Exception):
+    "to be raised when unmanaged datum parrameter occurs"
+
+
+def _fetch(url: str) -> dict:
     try:
         resp = urllib.request.urlopen(url)
     except urllib.error.URLError:
-        raise Exception()
+        raise DatasetConnexionError("could not reach EPSG API server")
     status = resp.getcode()
     if status == 200:
         return json.loads(resp.read())
     else:
-        raise Exception()
+        raise DatasetNotFound(f"nothing found at {url} endpoint")
 
 
 class EpsgElement(ctypes.Structure):
-    _fields_ = []
+    """
+    """
 
     @property
-    def id(self):
+    def id(self) -> int:
+        "return element `EPSG Code`."
         return self.__data["Code"]
 
     def __init__(self, code: int = None, name: str = None) -> None:
         if not any([code, name]):
-            raise Exception()
+            raise DatasetIdentificationError("epsg code or keyword is needed")
 
         if name:
-            raise NotImplementedError()
+            raise NotImplementedError("search by keyword not implemented yet")
 
         path = os.path.join(DATA, self.__class__.__name__, f"{code}.json")
 
@@ -67,15 +108,47 @@ class EpsgElement(ctypes.Structure):
                     getattr(sys.modules[__name__], key)(value.get("Code", 0))
                 )
 
-    def __getattr__(self, attr):
+    def to_target(self, value: Union[int, float]) -> float:
+        return value / self.Unit.ratio if hasattr(self, "Unit") else None
+
+    def from_target(self, value: Union[int, float]) -> float:
+        return value * self.Unit.ratio if hasattr(self, "Unit") else None
+
+    def __getattr__(self, attr: str) -> Union[object, None]:
         try:
             return self.__data.get(attr)
         except KeyError:
             return ctypes.Structure.__getattr__(self, attr)
 
 
+class Conversion(EpsgElement):
+    ""
+
+
+class CoordSystem(EpsgElement):
+    ""
+
+
+class CoordOperationMethod(EpsgElement):
+    ""
+
+
+class CoordOperationParameter(EpsgElement):
+    ""
+
+
+class Datum(EpsgElement):
+    ""
+
+
 class Unit(EpsgElement):
-    pass
+    _fields_ = [
+        ("ratio", ctypes.c_double)
+    ]
+
+    def __init__(self, *a, **kw):
+        EpsgElement.__init__(self, *a, **kw)
+        self.ratio = self.FactorC / self.FactorB
 
 
 class PrimeMeridian(EpsgElement):
@@ -85,31 +158,35 @@ class PrimeMeridian(EpsgElement):
 
     def __init__(self, *a, **kw):
         EpsgElement.__init__(self, *a, **kw)
-        self.a = self.GreenwichLongitude
+        self.longitude = math.radians(self.GreenwichLongitude)
 
 
 class Ellipsoid(EpsgElement):
     _fields_ = [
         ("a", ctypes.c_double),
+        ("b", ctypes.c_double),
+        ("e", ctypes.c_double),
         ("f", ctypes.c_double)
     ]
 
     def __init__(self, *a, **kw):
         EpsgElement.__init__(self, *a, **kw)
         self.a = self.SemiMajorAxis
-        try:
+        # initialize f, e and b values
+        if self.InverseFlattening != 'NaN':
             self.f = 1. / self.InverseFlattening
-        except TypeError:
-            # if InverseFlattening = 'NaN'
-            self.f = (self.a - self.SemiMinorAxis) / self.a
-
-
-class Datum(EpsgElement):
-    pass
+            self.e = math.sqrt(2 * self.f - self.f**2)
+            self.b = math.sqrt(self.a**2 * (1 - self.e**2))
+        else:
+            self.b = self.SemiMinorAxis
+            self.f = (self.a - self.b) / self.a
+            self.e = math.sqrt(2 * self.f - self.f**2)
 
 
 class GeodeticCoordRefSystem(EpsgElement):
     _fields_ = [
+        ("ellipsoid", Ellipsoid),
+        ("prime", PrimeMeridian),
         ("ds", ctypes.c_double),
         ("dx", ctypes.c_double),
         ("dy", ctypes.c_double),
@@ -121,7 +198,7 @@ class GeodeticCoordRefSystem(EpsgElement):
 
     def __init__(self, *a, **kw):
         EpsgElement.__init__(self, *a, **kw)
-        self.datum = self.Datum
+        self.ellipsoid = self.Datum.Ellipsoid
         self.prime = self.Datum.PrimeMeridian
 
         path = os.path.join(DATA, "ToWgs84", f"{self.id}.json")
@@ -145,7 +222,13 @@ class GeodeticCoordRefSystem(EpsgElement):
                 raise Exception()
 
         for param in data["ParameterValues"]:
-            setattr(
-                self, TOWGS84_PARAMETER_CODES[param["ParameterCode"]],
-                param["ParameterValue"]
-            )
+            try:
+                setattr(
+                    self, TOWGS84_PARAMETER_CODES[param["ParameterCode"]],
+                    param["ParameterValue"]
+                )
+            except KeyError:
+                raise DatumInitializationError(
+                    f"unmanageable parameter {param['ParameterCode']}: "
+                    f"{param['Name']}"
+                )
