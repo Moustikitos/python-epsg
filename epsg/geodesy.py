@@ -13,12 +13,21 @@ _TODEG = 180.0 / math.pi
 def _dms(value):
     if value == 0:
         return f"{0:03d}°{0:02d}'{0.0:.5f}\""
+
     s = -1 if value < 0 else 1
     value = abs(value)
     degrees = math.floor(value)
     value = (value - degrees) * 60
     minutes = int(math.floor(value))
     secondes = (value - minutes) * 60
+
+    if round(secondes, 3) == 60:
+        minutes += 1
+        secondes = 0
+        if round(minutes, 5) == 60:
+            degrees += 1
+            minutes = 0
+
     return \
         f"{'+' if s > 0 else '-'}{degrees:03d}°{minutes:02d}'{secondes:.5f}\""
 

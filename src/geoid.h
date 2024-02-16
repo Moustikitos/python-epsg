@@ -49,7 +49,7 @@ typedef struct{
 typedef struct{
     double longitude;
 }Prime;
-
+ 
 typedef struct{
     double a;
     double b;
