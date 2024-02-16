@@ -4,12 +4,12 @@ import os
 import sys
 import math
 import json
-import ctypes
 
 import urllib.request
 import urllib.error
 
 from typing import Union
+from epsg import src
 
 DATA = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".dataset")
 
@@ -26,6 +26,8 @@ PROJ_METHOD_CODES = {
     9659: "latlong",
     9807: "tmerc",
     9812: "omerc",
+    1102: "lcc", 1051: "lcc", 9801: "lcc", 9802: "lcc", 9803: "lcc",
+    9822: "lcc"
 }
 
 PROJ_PARAMETER_CODES = {
@@ -53,7 +55,7 @@ class DatasetIdentificationError(Exception):
 
 
 class DatumInitializationError(Exception):
-    "to be raised when unmanaged datum parrameter occurs"
+    "to be raised when unmanageable datum parrameter occurs"
 
 
 def _fetch(url: str) -> dict:
@@ -68,14 +70,10 @@ def _fetch(url: str) -> dict:
         raise DatasetNotFound(f"nothing found at {url} endpoint")
 
 
-class EpsgElement(ctypes.Structure):
+# class EpsgElement(ctypes.Structure):
+class EpsgElement(object):
     """
     """
-
-    @property
-    def id(self) -> int:
-        "return element `EPSG Code`."
-        return self.__data["Code"]
 
     def __init__(self, code: int = None, name: str = None) -> None:
         if not any([code, name]):
@@ -98,6 +96,7 @@ class EpsgElement(ctypes.Structure):
             with open(path, "w") as out:
                 json.dump(self.__data, out, indent=2)
 
+        self.id = self.__data["Code"]
         for key, value in [
             item for item in self.__data.items() if item[-1] is not None
         ]:
@@ -108,17 +107,28 @@ class EpsgElement(ctypes.Structure):
                     getattr(sys.modules[__name__], key)(value.get("Code", 0))
                 )
 
+        self.populate()
+
+    def populate(self):
+        pass
+
     def to_target(self, value: Union[int, float]) -> float:
         return value / self.Unit.ratio if hasattr(self, "Unit") else None
 
     def from_target(self, value: Union[int, float]) -> float:
         return value * self.Unit.ratio if hasattr(self, "Unit") else None
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} #{self.Code}: {self.Name}>"
+
     def __getattr__(self, attr: str) -> Union[object, None]:
         try:
-            return self.__data.get(attr)
-        except KeyError:
-            return ctypes.Structure.__getattr__(self, attr)
+            return getattr(object.__getattribute__(self, "_struct_"), attr)
+        except AttributeError:
+            try:
+                return self.__data[attr]
+            except KeyError:
+                return object.__getattribute__(self, attr)
 
 
 class Conversion(EpsgElement):
@@ -142,64 +152,45 @@ class Datum(EpsgElement):
 
 
 class Unit(EpsgElement):
-    _fields_ = [
-        ("ratio", ctypes.c_double)
-    ]
 
-    def __init__(self, *a, **kw):
-        EpsgElement.__init__(self, *a, **kw)
-        self.ratio = self.FactorC / self.FactorB
+    def populate(self):
+        self._struct_ = src.Unit()
+        self._struct_.ratio = self.FactorC / self.FactorB
 
 
 class PrimeMeridian(EpsgElement):
-    _fields_ = [
-        ("longitude", ctypes.c_double)
-    ]
 
-    def __init__(self, *a, **kw):
-        EpsgElement.__init__(self, *a, **kw)
-        self.longitude = math.radians(self.GreenwichLongitude)
+    def populate(self):
+        self._struct_ = src.Prime()
+        self._struct_.longitude = math.radians(self.GreenwichLongitude)
 
 
 class Ellipsoid(EpsgElement):
-    _fields_ = [
-        ("a", ctypes.c_double),
-        ("b", ctypes.c_double),
-        ("e", ctypes.c_double),
-        ("f", ctypes.c_double)
-    ]
 
-    def __init__(self, *a, **kw):
-        EpsgElement.__init__(self, *a, **kw)
-        self.a = self.SemiMajorAxis
+    def populate(self):
+        self._struct_ = src.Ellipsoid()
+        self._struct_.a = self.SemiMajorAxis
         # initialize f, e and b values
         if self.InverseFlattening != 'NaN':
-            self.f = 1. / self.InverseFlattening
-            self.e = math.sqrt(2 * self.f - self.f**2)
-            self.b = math.sqrt(self.a**2 * (1 - self.e**2))
+            self._struct_.f = 1. / self.InverseFlattening
+            self._struct_.e = \
+                math.sqrt(2 * self._struct_.f - self._struct_.f**2)
+            self._struct_.b = \
+                math.sqrt(self._struct_.a**2 * (1 - self._struct_.e**2))
         else:
-            self.b = self.SemiMinorAxis
-            self.f = (self.a - self.b) / self.a
-            self.e = math.sqrt(2 * self.f - self.f**2)
+            self._struct_.b = self.SemiMinorAxis
+            self._struct_.f = \
+                (self._struct_.a - self._struct_.b) / self._struct_.a
+            self._struct_.e = \
+                math.sqrt(2 * self._struct_.f - self._struct_.f**2)
 
 
 class GeodeticCoordRefSystem(EpsgElement):
-    _fields_ = [
-        ("ellipsoid", Ellipsoid),
-        ("prime", PrimeMeridian),
-        ("ds", ctypes.c_double),
-        ("dx", ctypes.c_double),
-        ("dy", ctypes.c_double),
-        ("dz", ctypes.c_double),
-        ("rx", ctypes.c_double),
-        ("ry", ctypes.c_double),
-        ("rz", ctypes.c_double)
-    ]
 
-    def __init__(self, *a, **kw):
-        EpsgElement.__init__(self, *a, **kw)
-        self.ellipsoid = self.Datum.Ellipsoid
-        self.prime = self.Datum.PrimeMeridian
+    def populate(self):
+        self._struct_ = src.Datum()
+        self._struct_.ellipsoid = self.Datum.Ellipsoid._struct_
+        self._struct_.prime = self.Datum.PrimeMeridian._struct_
 
         path = os.path.join(DATA, "ToWgs84", f"{self.id}.json")
         if os.path.exists(path):
@@ -224,7 +215,8 @@ class GeodeticCoordRefSystem(EpsgElement):
         for param in data["ParameterValues"]:
             try:
                 setattr(
-                    self, TOWGS84_PARAMETER_CODES[param["ParameterCode"]],
+                    self._struct_,
+                    TOWGS84_PARAMETER_CODES[param["ParameterCode"]],
                     param["ParameterValue"]
                 )
             except KeyError:

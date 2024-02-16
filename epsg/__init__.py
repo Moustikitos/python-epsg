@@ -4,6 +4,7 @@ import os
 import sys
 import math
 import ctypes
+import typing
 
 from epsg import dataset
 from epsg.geodesy import Geodesic, _dms
@@ -15,7 +16,7 @@ _TODEG = 180.0/math.pi
 # find data file
 def _get_file(name: str) -> str:
     """
-    Find data file according to package installation path.
+    Find data file in epsg package pathes.
     """
     for path in __path__:
         filename = os.path.join(path, name)
@@ -27,7 +28,8 @@ def _get_file(name: str) -> str:
 class Geocentric(ctypes.Structure):
     """
     `ctypes` structure for geocentric coordinates. This reference is generaly
-    used as a transition for geodesic conversion.
+    used as a transition for datum transformation. Coordinates are expressed in
+    metres.
 
     Attributes:
         x (float): X-axis value
@@ -47,7 +49,7 @@ class Geocentric(ctypes.Structure):
         ("z", ctypes.c_double)
     ]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<X={self.x:.3f} Y={self.y:.3f} Z={self.z:.3f}>"
 
 
@@ -74,20 +76,24 @@ class Geographic(ctypes.Structure):
         ("altitude", ctypes.c_double)
     ]
 
-    def __repr__(self):
-        return f"<X={self.x:.3f} Y={self.y:.3f} alt={self.altitude:.3f}>"
+    def __repr__(self) -> str:
+        if hasattr(self, "_unit"):
+            prefix = f"{self._unit.Name}:{self._unit.ratio:.3f}"
+        else:
+            prefix = "metre:1.000"
+        return \
+            f"<{prefix}[X={self.x:.3f} Y={self.y:.3f}]"\
+            f" alt={self.altitude:.3f}>"
 
 
 class Vincenty_dist(ctypes.Structure):
     """
     Great circle distance computation result using Vincenty formulae.
-    `Vincenty_dist` structures are returned by `Gryd.Ellipsoid.distance`
-    function.
 
     Attributes:
         distance (float): great circle distance in meters
-        initial_bearing (float): initial bearing in degrees
-        final_bearing (float): final bearing in degrees
+        initial_bearing (float): initial bearing in radians
+        final_bearing (float): final bearing in radians
     """
     _fields_ = [
         ("distance", ctypes.c_double),
@@ -95,24 +101,21 @@ class Vincenty_dist(ctypes.Structure):
         ("final_bearing", ctypes.c_double)
     ]
 
-    def __repr__(self):
-        return "<Dist %.3fkm initial bearing=%.1f° final bearing=%.1f°>" % (
-            self.distance/1000,
-            math.degrees(self.initial_bearing),
-            math.degrees(self.final_bearing)
-        )
+    def __repr__(self) -> str:
+        return \
+            f"<{self.distance/1000:.3f}km "\
+            f"initial bearing={math.degrees(self.initial_bearing):.1f}° "\
+            f"final bearing{math.degrees(self.final_bearing):.1f}°>"
 
 
 class Vincenty_dest(ctypes.Structure):
     """
     Great circle destination computation result using Vincenty formulae.
-    `Vincenty_dist` structures are returned by `Gryd.Ellipsoid.destination`
-    function.
 
     Attributes:
-        longitude (float): destination longitude in degrees
-        latitude (float): destination latitude in degrees
-        destination_bearing (float): destination bearing in degrees
+        longitude (float): destination longitude in radians
+        latitude (float): destination latitude in radians
+        destination_bearing (float): destination bearing in radians
     """
     _fields_ = [
         ("longitude", ctypes.c_double),
@@ -120,64 +123,31 @@ class Vincenty_dest(ctypes.Structure):
         ("destination_bearing", ctypes.c_double)
     ]
 
-    def __repr__(self):
-        return "<Dest lon=%s lat=%s end bearing=%.1f°>" % (
-            _dms(math.degrees(self.longitude)),
-            _dms(math.degrees(self.latitude)),
-            math.degrees(self.destination_bearing)
-        )
+    def __repr__(self) -> str:
+        return \
+            f"<lon={_dms(math.degrees(self.longitude))} "\
+            f"lat={_dms(math.degrees(self.latitude))} "\
+            f"end bearing={math.degrees(self.destination_bearing):.1f}°>"
 
 
 class ProjectedCoordRefSystem(dataset.EpsgElement):
-    _fields_ = [
-        ("datum", dataset.GeodeticCoordRefSystem),
-        ("lambda0", ctypes.c_double),
-        ("phi0", ctypes.c_double),
-        ("phi1", ctypes.c_double),
-        ("phi2", ctypes.c_double),
-        ("k0", ctypes.c_double),
-        ("x0", ctypes.c_double),
-        ("y0", ctypes.c_double),
-        ("azimut", ctypes.c_double)
-    ]
+    """
+    """
 
-    def __call__(self, element):
-        ratio = self.unit.ratio
-        if isinstance(element, Geodesic):
-            lla = Geodesic(
-                (element.longitude + self.datum.prime.longitude) * _TODEG,
-                element.latitude * _TODEG, element.altitude
-            )
-            xya = self.forward(lla)
-            xya.x /= ratio
-            xya.y /= ratio
-            return xya
-        else:
-            xya = Geographic(
-                element.x * ratio, element.y * ratio, element.altitude
-            )
-            lla = self.inverse(xya)
-            lla.longitude -= self.datum.prime.longitude
-            return lla
+    def populate(self):
+        self.datum = dataset.GeodeticCoordRefSystem(
+            self.BaseCoordRefSystem["Code"]
+        )
+        self._struct_ = dataset.src.Crs()
+        self._struct_.datum = self.datum._struct_
 
-    def forward(self, lla: Geodesic) -> Geographic:
-        return self._proj_forward(self, lla)
-
-    def inverse(self, xya: Geographic) -> Geodesic:
-        return self._proj_inverse(self, xya)
-
-    def __init__(self, *a, **kw):
-        dataset.EpsgElement.__init__(self, *a, **kw)
         self.conversion = dataset.Conversion(self.Projection["Code"])
         self.projection = dataset.CoordOperationMethod(
             self.conversion.Method["Code"]
         )
-        self.datum = dataset.GeodeticCoordRefSystem(
-            self.BaseCoordRefSystem["Code"]
-        )
-        self.unit = dataset.Unit(
-            dataset.CoordSystem(self.CoordSys["Code"]).Axis[0]["Unit"]["Code"]
-        )
+        coordsys = dataset.CoordSystem(self.CoordSys["Code"])
+        self.x_unit = dataset.Unit(coordsys.Axis[0]["Unit"]["Code"])
+        self.y_unit = dataset.Unit(coordsys.Axis[1]["Unit"]["Code"])
 
         self.parameters = []
         for param in self.conversion.ParameterValues:
@@ -185,7 +155,7 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
             if code in dataset.PROJ_PARAMETER_CODES:
                 attr = dataset.PROJ_PARAMETER_CODES[code]
                 setattr(
-                    self, attr, param["ParameterValue"] *
+                    self._struct_, attr, param["ParameterValue"] *
                     (1.0 if attr in "x0y0k0" else _TORAD)
                 )
                 self.parameters.append(dataset.CoordOperationParameter(code))
@@ -195,15 +165,45 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
             self._proj_forward = getattr(proj, f"{name}_forward")
             self._proj_forward.restype = Geographic
             self._proj_forward.argtypes = [
-                ctypes.POINTER(ProjectedCoordRefSystem),
+                ctypes.POINTER(dataset.src.Crs),
                 ctypes.POINTER(Geodesic)
             ]
             self._proj_inverse = getattr(proj, f"{name}_inverse")
             self._proj_inverse.restype = Geodesic
             self._proj_inverse.argtypes = [
-                ctypes.POINTER(ProjectedCoordRefSystem),
+                ctypes.POINTER(dataset.src.Crs),
                 ctypes.POINTER(Geographic)
             ]
+
+    def __call__(self, element: typing.Union[Geodesic, Geographic]) \
+            -> typing.Union[Geodesic, Geographic]:
+        """
+        """
+
+        if isinstance(element, Geodesic):
+            longitude = element.longitude + self._struct_.datum.prime.longitude
+            lla = Geodesic(
+                longitude * _TODEG, element.latitude * _TODEG, element.altitude
+            )
+            xya = self.forward(lla)
+            xya.x /= self.x_unit.ratio
+            xya.y /= self.y_unit.ratio
+            setattr(xya, "_unit", self.x_unit)
+            return xya
+        else:
+            xya = Geographic(
+                element.x * self.x_unit.ratio, element.y * self.y_unit.ratio,
+                element.altitude
+            )
+            lla = self.inverse(xya)
+            lla.longitude -= self._struct_.datum.prime.longitude
+            return lla
+
+    def forward(self, lla: Geodesic) -> Geographic:
+        return self._proj_forward(self._struct_, lla)
+
+    def inverse(self, xya: Geographic) -> Geodesic:
+        return self._proj_inverse(self._struct_, xya)
 
 
 #######################
@@ -215,37 +215,30 @@ geoid = ctypes.CDLL(_get_file("geoid.%s" % __dll_ext__))
 proj = ctypes.CDLL(_get_file("proj.%s" % __dll_ext__))
 
 geoid.geocentric.argtypes = \
-    [ctypes.POINTER(dataset.Ellipsoid), ctypes.POINTER(Geodesic)]
+    [ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geodesic)]
 geoid.geocentric.restype = Geocentric
 
 geoid.geodesic.argtypes = \
-    [ctypes.POINTER(dataset.Ellipsoid), ctypes.POINTER(Geocentric)]
+    [ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geocentric)]
 geoid.geodesic.restype = Geodesic
 
 geoid.distance.argtypes = [
-    ctypes.POINTER(dataset.Ellipsoid),
+    ctypes.POINTER(dataset.src.Ellipsoid),
     ctypes.POINTER(Geodesic),
     ctypes.POINTER(Geodesic)
 ]
 geoid.distance.restype = Vincenty_dist
 
 geoid.destination.argtypes = [
-    ctypes.POINTER(dataset.Ellipsoid),
+    ctypes.POINTER(dataset.src.Ellipsoid),
     ctypes.POINTER(Geodesic),
     ctypes.POINTER(Vincenty_dist)
 ]
 geoid.destination.restype = Vincenty_dest
 
-# geoid.xyz_dat2dat.argtypes = [
-#     ctypes.POINTER(dataset.GeodeticCoordRefSystem),
-#     ctypes.POINTER(dataset.GeodeticCoordRefSystem),
-#     ctypes.POINTER(Geocentric)
-# ]
-# geoid.xyz_dat2dat.restype = Geocentric
-
 geoid.lla_dat2dat.argtypes = [
-    ctypes.POINTER(dataset.GeodeticCoordRefSystem),
-    ctypes.POINTER(dataset.GeodeticCoordRefSystem),
+    ctypes.POINTER(dataset.src.Crs),
+    ctypes.POINTER(dataset.src.Crs),
     ctypes.POINTER(Geodesic)
 ]
 geoid.lla_dat2dat.restype = Geodesic
