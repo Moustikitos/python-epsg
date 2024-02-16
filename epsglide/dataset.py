@@ -9,7 +9,7 @@ import urllib.request
 import urllib.error
 
 from typing import Union
-from epsg import src
+from epsglide import src
 
 DATA = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".dataset")
 
@@ -61,13 +61,16 @@ class DatumInitializationError(Exception):
 def _fetch(url: str) -> dict:
     try:
         resp = urllib.request.urlopen(url)
-    except urllib.error.URLError:
-        raise DatasetConnexionError("could not reach EPSG API server")
-    status = resp.getcode()
-    if status == 200:
-        return json.loads(resp.read())
-    else:
-        raise DatasetNotFound(f"nothing found at {url} endpoint")
+    except urllib.error.URLError as error:
+        if error.code == 404:
+            raise DatasetNotFound(error.reason)
+        else:
+            raise DatasetConnexionError("could not reach EPSG API server")
+    # status = resp.getcode()
+    # if status == 200:
+    return json.loads(resp.read())
+    # else:
+    #     raise DatasetNotFound(f"nothing found at {url} endpoint")
 
 
 # class EpsgElement(ctypes.Structure):

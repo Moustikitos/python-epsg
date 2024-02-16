@@ -6,8 +6,8 @@ import math
 import ctypes
 import typing
 
-from epsg import dataset
-from epsg.geodesy import Geodesic, _dms
+from epsglide import dataset
+from epsglide.geodesy import Geodesic, _dms
 
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
@@ -135,22 +135,24 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
     """
 
     def populate(self):
-        self.datum = dataset.GeodeticCoordRefSystem(
+        self.Datum = dataset.GeodeticCoordRefSystem(
             self.BaseCoordRefSystem["Code"]
         )
         self._struct_ = dataset.src.Crs()
-        self._struct_.datum = self.datum._struct_
+        self._struct_.datum = self.Datum._struct_
 
-        self.conversion = dataset.Conversion(self.Projection["Code"])
-        self.projection = dataset.CoordOperationMethod(
-            self.conversion.Method["Code"]
+        self.Conversion = dataset.Conversion(self.Projection["Code"])
+        self.CoordOperationMethod = dataset.CoordOperationMethod(
+            self.Conversion.Method["Code"]
         )
+
         coordsys = dataset.CoordSystem(self.CoordSys["Code"])
         self.x_unit = dataset.Unit(coordsys.Axis[0]["Unit"]["Code"])
         self.y_unit = dataset.Unit(coordsys.Axis[1]["Unit"]["Code"])
+        self.CoordSystem = coordsys
 
         self.parameters = []
-        for param in self.conversion.ParameterValues:
+        for param in self.Conversion.ParameterValues:
             code = param["ParameterCode"]
             if code in dataset.PROJ_PARAMETER_CODES:
                 attr = dataset.PROJ_PARAMETER_CODES[code]
@@ -160,7 +162,9 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
                 )
                 self.parameters.append(dataset.CoordOperationParameter(code))
 
-        name = dataset.PROJ_METHOD_CODES.get(self.projection.id, False)
+        name = dataset.PROJ_METHOD_CODES.get(
+            self.CoordOperationMethod.id, False
+        )
         if name:
             self._proj_forward = getattr(proj, f"{name}_forward")
             self._proj_forward.restype = Geographic
@@ -242,3 +246,11 @@ geoid.lla_dat2dat.argtypes = [
     ctypes.POINTER(Geodesic)
 ]
 geoid.lla_dat2dat.restype = Geodesic
+
+
+dataset.Ellipsoid.distance = lambda obj, start, stop: \
+    geoid.distance(obj._struct_, start, stop)
+
+
+dataset.Ellipsoid.destination = lambda obj, start, dist: \
+    geoid.destination(obj._struct_, start, dist)

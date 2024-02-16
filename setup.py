@@ -39,7 +39,7 @@ long_description = open("./README.md", "r")
 
 kw = {
     "version": version.read().strip(),
-    "name": "epsg",
+    "name": "EPSGlide",
     "keywords": [
         "epsg", "projection", "great", "circle", "geohash", "georef", "GARS",
         "maidenhead", "dataset"
@@ -55,11 +55,11 @@ kw = {
         "with access to EPSG dataset public API",
     "long_description": long_description.read(),
     "long_description_content_type": "text/markdown",
-    "packages": ["epsg"],
+    "packages": ["epsglide"],
     "include_package_data": True,
     "ext_modules": [
         CTypes(
-            'epsg.geoid',
+            'epsglide.geoid',
             extra_compile_args=[],
             include_dirs=['src/'],
             sources=[
@@ -67,7 +67,7 @@ kw = {
             ]
         ),
         CTypes(
-            'epsg.proj',
+            'epsglide.proj',
             extra_compile_args=[],
             include_dirs=['src/'],
             sources=[
