@@ -57,3 +57,5 @@ docs/_build/
 .vscode/
 .venv/
 .venv2/
+mkdocs.yml
+.generated-files.txt
