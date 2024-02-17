@@ -1,0 +1,23 @@
+loaders:
+  - type: python
+processors:
+  - type: filter
+  - type: smart
+  - type: crossref
+renderer:
+  output_directory: .
+  content_directory_name: docs
+  type: mkdocs
+  pages:
+    - title: Home
+      name: index
+      source: README.md
+    - title: Geodesy
+      contents:
+        - epsglide.geodesy*
+  mkdocs_config:
+    site_name: The EPSGlide Project
+    repo_url: https://github.com/Moustikitos/python-epsg
+    repo_name: GitHub
+    copyright: Copyright &copy; 2024 THOORENS Bruno - BSD licence
+    theme: readthedocs
