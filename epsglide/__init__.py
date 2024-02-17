@@ -180,8 +180,8 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
             ]
 
     def __call__(
-            self, element: typing.Union[Geodesic, Geographic]
-        ) -> typing.Union[Geodesic, Geographic]:
+        self, element: typing.Union[Geodesic, Geographic]
+    ) -> typing.Union[Geodesic, Geographic]:
         """
         """
 

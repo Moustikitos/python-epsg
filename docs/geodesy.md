@@ -8,10 +8,25 @@ This module provides functionality for working with geodesic coordinates,
 allowing for different representations and initialization methods.
 
 Supported representations:
-    - Maidenhead
-    - Geohash
-    - Georef
-    - GARS
+
+  - [x] Maidenhead
+  - [x] Geohash
+  - [x] Georef
+  - [x] GARS
+
+Even if angular value are stored in radians, initialisation and
+representation are done using degrees. `Geodesic` class can be imported
+from `geodesy` package module:
+
+    >>> from epsglide.geodesy import Geodesic
+    >>> dublin = Geodesic(-6.272877, 53.344606, 105.)  # use degrees
+    >>> london = Geodesic(-0.127005, 51.518602, 0.)  # use degrees
+    >>> dublin  # show degrees in dms format
+    <lon=-6.272877 lat=53.344606 alt=105.000>
+    >>> london  # show degrees in dms format
+    <lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
+    >>> london.longitude  # value is stored in radians
+    -0.002216655416495398
 
 <a id="epsglide.geodesy.Geodesic"></a>
 
@@ -21,29 +36,13 @@ Supported representations:
 class Geodesic(ctypes.Structure)
 ```
 
-`ctypes` structure for geodesic coordinates. Even if angular value are
-stored in radians, initialisation and representation are done using
-degrees.
-
-
-This class also provides various standart initialization from various
-representation such as `maidenhead`, `georef`, `geohash`.
+`ctypes` structure for geodesic coordinates. This class also provides
+various standart initialization from various representation such as
+`maidenhead`, `georef`, `geohash`.
 
 
 The associated GARS area (5minx5min tile) can also be provided.
 
-
-```python
->>> from epsglide.geodesy import Geodesic
->>> dublin = Geodesic(-6.272877, 53.344606, 105.)  # use degrees
->>> london = Geodesic(-0.127005, 51.518602, 0.)  # use degrees
->>> dublin  # show degrees in dms format
-<lon=-6.272877 lat=53.344606 alt=105.000>
->>> london  # show degrees in dms format
-<lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
->>> london.longitude  # value is stored in radians
--0.002216655416495398
-```
 ```python
 >>> Geodesic.from_maidenhead('IO91wm44sl21gl14kb51om')  # london
 <lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
@@ -112,12 +111,12 @@ Return Geodesic object from maidenhead string.
   A `precision` tuple (longitude, latitude) in degrees is added as
   class attribute.
   
-    ```python
-    >>> Geodesic.from_maidenhead('IO63ui72gq').precision
-    (0.00015624999999999998, 0.00015624999999999998)
-    >>> Geodesic.from_maidenhead('IO63ui72gq19dh').precision
-    (6.510416666666665e-07, 6.510416666666665e-07)
-    ```
+```python
+>>> Geodesic.from_maidenhead('IO63ui72gq').precision
+(0.00015624999999999998, 0.00015624999999999998)
+>>> Geodesic.from_maidenhead('IO63ui72gq19dh').precision
+(6.510416666666665e-07, 6.510416666666665e-07)
+```
 
 <a id="epsglide.geodesy.Geodesic.georef"></a>
 
@@ -177,12 +176,12 @@ Return Geodesic object from georef.
   A `precision` tuple (longitude, latitude) in degrees is added as
   class attribute.
   
-    ```python
-    >>> epsglide.Geodesic.from_georef('MKJJ433220').precision   
-    (0.0008333333333333333, 0.0008333333333333333)
-    >>> Geodesic.from_georef('MKJJ43322037').precision
-    (8.333333333333333e-05, 8.333333333333333e-05)
-    ```
+```python
+>>> epsglide.Geodesic.from_georef('MKJJ433220').precision   
+(0.0008333333333333333, 0.0008333333333333333)
+>>> Geodesic.from_georef('MKJJ43322037').precision
+(8.333333333333333e-05, 8.333333333333333e-05)
+```
 
 <a id="epsglide.geodesy.Geodesic.gars"></a>
 
@@ -228,7 +227,7 @@ where to handle 5minx5min tile.
 
 - `epsglide.Geodesic` - geodesic coordinates.
   
-  Global precision of centered GARS coordinates is about 0.0833
+  Global precision of centered GARS coordinates is about `0.0833`
   degrees in longitude ad latitude.
 
 <a id="epsglide.geodesy.Geodesic.geohash"></a>

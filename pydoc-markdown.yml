@@ -15,9 +15,22 @@ renderer:
     - title: Geodesy
       contents:
         - epsglide.geodesy*
+
   mkdocs_config:
     site_name: The EPSGlide Project
     repo_url: https://github.com/Moustikitos/python-epsg
     repo_name: GitHub
     copyright: Copyright &copy; 2024 THOORENS Bruno - BSD licence
-    theme: readthedocs
+    extra_css:
+    - style.css
+    theme:
+      name: mkdocs
+      nav_style: light
+      highlightjs: true
+      hljs_languages:
+      - python
+    markdown_extensions:
+    - smarty
+    - def_list
+    - pymdownx.tasklist:
+        custom_checkbox: false
