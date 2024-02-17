@@ -41,7 +41,7 @@ kw = {
     "version": version.read().strip(),
     "name": "EPSGlide",
     "keywords": [
-        "epsg", "projection", "great", "circle", "georef", "GARS",
+        "epsg", "projection", "great", "circle", "geohash", "georef", "GARS",
         "maidenhead", "dataset"
     ],
     "author": "Bruno THOORENS",

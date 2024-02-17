@@ -1,5 +1,18 @@
 # -*- encoding:utf-8 -*-
 
+"""
+Module for handling geodesic coordinates and their representations.
+
+This module provides functionality for working with geodesic coordinates,
+allowing for different representations and initialization methods.
+
+Supported representations:
+    - Maidenhead
+    - Geohash
+    - Georef
+    - GARS
+"""
+
 import io
 import math
 import ctypes
@@ -29,23 +42,50 @@ def _dms(value):
             minutes = 0
 
     return \
-        f"{'+' if s > 0 else '-'}{degrees:03d}°{minutes:02d}'{secondes:.5f}\""
+        f"{'+' if s > 0 else '-'}{degrees:03d}d{minutes:02d}m{secondes:.5f}s"
 
 
 class Geodesic(ctypes.Structure):
     """
-    `ctypes` structure for geodesic coordinates
-
-    Attributes:
-        longitude (float): longitude value of geodesic coordinates in degrees
-        latitude (float): latitude value of geodesic coordinates in degrees
-        altitude (float): elevation of the geodesic coordinates in meters
+    `ctypes` structure for geodesic coordinates. Even if angular value are
+    stored in radians, initialisation and representation are done using
+    degrees.
 
     ```python
-    >>> dublin = epsg.Geodesic(-6.272877, 53.344606, 105.)
-    >>> dublin
+    >>> from epsglide.geodesy import Geodesic
+    >>> dublin = Geodesic(-6.272877, 53.344606, 105.)  # use degrees
+    >>> london = Geodesic(-0.127005, 51.518602, 0.)  # use degrees
+    >>> dublin  # show degrees in dms format
     <lon=-6.272877 lat=53.344606 alt=105.000>
+    >>> london  # show degrees in dms format
+    <lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
+    >>> london.longitude  # value is stored in radians
+    -0.002216655416495398
     ```
+
+    This class also provides various standart initialization from various
+    representation such as `maidenhead`, `georef`, `geohash`.
+
+    ```python
+    >>> Geodesic.from_maidenhead('IO91wm44sl21gl14kb51om')  # london
+    <lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
+    >>> epsglide.Geodesic.from_georef('MKQG52883162')  # london
+    <lon=-000d07m36.90000s lat=+051d31m7.50000s alt=0.0>
+    >>> Geodeis.from_geohash('gcpvj4et8e6pwdj0ft1k', center=True)  # london
+    <lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0>
+    ```
+
+    The associated GARS area (5minx5min tile) can also be provided.
+
+    ```python
+    >>> london.gars()
+    '360MV46'
+    ```
+
+    Attributes:
+        longitude (float): longitude value of geodesic coordinates in radians.
+        latitude (float): latitude value of geodesic coordinates in radians.
+        altitude (float): elevation of the geodesic coordinates in meters.
     """
     _fields_ = [
         ("longitude", ctypes.c_double),
@@ -69,7 +109,8 @@ class Geodesic(ctypes.Structure):
 
     def maidenhead(self, level: int = 4) -> str:
         """
-        Convert coordinates to maidenhead.
+        Convert coordinates to maidenhead representation. Precision can be set
+        using `level` parameter.
 
         ```python
         >>> dublin.maidenhead()
@@ -79,9 +120,9 @@ class Geodesic(ctypes.Structure):
         ```
 
         Arguments:
-            level (int): precision level of maidenhead
+            level (int): precision level of maidenhead.
         Returns:
-            Maidenhead `str`
+            str: Maidenhead string.
         """
         base = "ABCDEFGHIJKLMNOPQRSTUVWX"
         longitude = (self.longitude * _TODEG + 180) % 360
@@ -116,9 +157,19 @@ class Geodesic(ctypes.Structure):
         Return Geodesic object from maidenhead string.
 
         Arguments:
-            maidenhead (str): maidenhead string
+            maidenhead (str): maidenhead representation.
         Returns:
-            `epsg.geodesy.Geodesic` coordinates
+            epsglide.Geodesic: geodesic coordinates.
+
+            A `precision` tuple (longitude, latitude) in degrees is added as
+            class attribute.
+
+            ```python
+            >>> Geodesic.from_maidenhead('IO63ui72gq').precision
+            (0.00015624999999999998, 0.00015624999999999998)
+            >>> Geodesic.from_maidenhead('IO63ui72gq19dh').precision
+            (6.510416666666665e-07, 6.510416666666665e-07)
+            ```
         """
         base = "ABCDEFGHIJKLMNOPQRSTUVWX"
         longitude = latitude = 0
@@ -145,7 +196,9 @@ class Geodesic(ctypes.Structure):
 
     def georef(self, digit: int = 8) -> str:
         """
-        Convert coordinates to georef.
+        Convert coordinates to georef. Best precision can be set with a
+        maximul of 8 digit (default). With this level, the precision is about
+        8.3e-05 degrees in longitude and latitude.
 
         ```python
         >>> dublin.georef()
@@ -155,13 +208,13 @@ class Geodesic(ctypes.Structure):
         ```
 
         Arguments:
-            digit (int): digit number of georef (can be 4, 6 or 8)
+            digit (int): digit number of georef (can be 4, 6 or 8).
         Returns:
-            Georef `str`
+            str: georef representation.
         """
         base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
-        longitude = (self.longitude*_TODEG + 180) % 360
-        latitude = (self.latitude*_TODEG + 90) % 180
+        longitude = (self.longitude * _TODEG + 180) % 360
+        latitude = (self.latitude * _TODEG + 90) % 180
 
         result = ""
 
@@ -202,16 +255,26 @@ class Geodesic(ctypes.Structure):
         Return Geodesic object from georef.
 
         ```python
-        >>> epsg.Geodesic.from_georef('MKJJ43322037')
-        <lon=-006°16'21.900" lat=+053°20'41.100" alt=0.000>
-        >>> epsg.Geodesic.from_georef('MKJJ433220')
-        <lon=-006°15'57.000" lat=+053°22'45.000" alt=0.000>
+        >>> Geodesic.from_georef('MKJJ433220')
+        <lon=-006d15m57.000s lat=+053d22m45.000s alt=0.000>
+        >>> Geodesic.from_georef('MKJJ43322037')
+        <lon=-006d16m21.900s lat=+053d20m41.100s alt=0.000>
         ```
 
         Arguments:
-            georef (str): georef string
+            georef (str): georef representation.
         Returns:
-            `epsg.geodesy.Geodesic` coordinates
+            epsglide.Geodesic: geodesic coordinates.
+
+            A `precision` tuple (longitude, latitude) in degrees is added as
+            class attribute.
+
+            ```python
+            >>> epsglide.Geodesic.from_georef('MKJJ433220').precision   
+            (0.0008333333333333333, 0.0008333333333333333)
+            >>> Geodesic.from_georef('MKJJ43322037').precision
+            (8.333333333333333e-05, 8.333333333333333e-05)
+            ```
         """
         base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
         eps = 1./2./60.
@@ -281,17 +344,20 @@ class Geodesic(ctypes.Structure):
         where to handle 5minx5min tile.
 
         ```python
-        >>> epsg.Geodesic.from_gars('348MY16', anchor="nw")
-        <lon=-006°20'0.000" lat=+053°25'0.000" alt=0.000>
+        >>> Geodesic.from_gars('348MY16', anchor="nw")
+        <lon=-006d20m0.000s lat=+053d25m0.000s alt=0.000>
         >>> epsg.Geodesic.from_gars('348MY16')
-        <lon=-006°17'30.000" lat=+053°22'30.000" alt=0.000>
+        <lon=-006d17m30.000s lat=+053d22m30.000s alt=0.000>
         ```
 
         Arguments:
-            gars (str): gars string
-            anchor (str): tile anchor (nesw)
+            gars (str): gars representation.
+            anchor (str): tile anchor using `n`, `e`, `s` or `w`.
         Returns:
-            `epsg.geodesy.Geodesic` coordinates
+            epsglide.Geodesic: geodesic coordinates.
+
+            Global precision of centered GARS coordinates is about 0.0833
+            degrees in longitude ad latitude.
         """
         base = "ABCDEFGHJKLMNPQRSTUVWXYZ"
         longitude = 5. / 60. * (
@@ -316,7 +382,98 @@ class Geodesic(ctypes.Structure):
         longitude += (int(gars[:3])-1) * 0.5
         latitude += (base.index(gars[3]) * 24 + base.index(gars[4])) * 0.5
 
-        return Geodesic(longitude=longitude - 180, latitude=latitude - 90)
+        result = Geodesic(longitude=longitude - 180, latitude=latitude - 90)
+        setattr(result, "precision", (5./60/2, 5./60/2))
+        return result
+
+    def geohash(
+            self, digit: int = 10,
+            base: str = "0123456789bcdefghjkmnpqrstuvwxyz"
+    ) -> str:
+        """
+        Convert coordinates to geohash.
+
+        ```python
+        >>> london.geohash()
+        'gcpvj4et8e'
+        >>> Geodesic.from_geohash('gcpvj4et8e')
+        <lon=-000d07m37.19969s lat=+051d31m6.97229s alt=0.0>
+        ```
+
+        Arguments:
+            digit (int): digit number of georef (can be 4, 6 or 8).
+        Returns:
+            str: geohash representation.
+        """
+        min_lon, max_lon = -180., 180.
+        min_lat, max_lat = -90., 90.
+        mid_lon, mid_lat = 0., 0.
+
+        longitude = math.degrees(self.longitude)
+        latitude = math.degrees(self.latitude)
+
+        geohash = ""
+        even = False
+        while len(geohash) < digit:
+            val = 0
+            for mask in [0b10000, 0b01000, 0b00100, 0b00010, 0b00001]:
+                if not even:
+                    if longitude >= mid_lon:
+                        min_lon = mid_lon
+                        val = mask if val == 0 else val | mask
+                    else:
+                        max_lon = mid_lon
+                    mid_lon = (min_lon + max_lon) / 2
+                else:
+                    if latitude >= mid_lat:
+                        min_lat = mid_lat
+                        val = mask if val == 0 else val | mask
+                    else:
+                        max_lat = mid_lat
+                    mid_lat = (min_lat + max_lat) / 2
+                even = not even
+            geohash += base[val]
+        return geohash
+
+    @staticmethod
+    def from_geohash(
+        geohash: str, base: str = "0123456789bcdefghjkmnpqrstuvwxyz",
+        center: bool = True
+    ):
+        """
+        """
+        eps_lon, eps_lat = 360./2., 180./2.
+        min_lon, max_lon = -180., 180.
+        min_lat, max_lat = -90., 90.
+        mid_lon, mid_lat = 0., 0.
+
+        even = False
+        for digit in geohash:
+            val = base.index(digit)
+            for mask in [0b10000, 0b01000, 0b00100, 0b00010, 0b00001]:
+                if not even:
+                    if mask & val == mask:
+                        min_lon = mid_lon
+                    else:
+                        max_lon = mid_lon
+                    mid_lon = (min_lon+max_lon)/2.
+                    eps_lon /= 2.
+                else:
+                    if mask & val == mask:
+                        min_lat = mid_lat
+                    else:
+                        max_lat = mid_lat
+                    mid_lat = (min_lat+max_lat)/2.
+                    eps_lat /= 2.
+                even = not even
+
+        if center:
+            mid_lon += eps_lon/2
+            mid_lat += eps_lat/2
+
+        result = Geodesic(mid_lon, mid_lat)
+        setattr(result, "precision", (eps_lon/2, eps_lat/2))
+        return result
 
     def url_load_location(self, url, **kwargs):
         """
@@ -338,10 +495,10 @@ class Geodesic(ctypes.Structure):
 
         Arguments:
             url (str): map provider url containing `%(lon)f` and `%(lat)f`
-                       format expression to be replaced by longitude and
-                       latitude found in GPS data
+                format expression to be replaced by longitude and latitude
+                found in GPS data
             **kwargs (dict): key-value pairs to match entries in url according
-                             to python string formatting
+                to python string formatting
         Returns:
             Image data as `bytes` (py3) or `str` (py2)
         """
@@ -363,10 +520,10 @@ class Geodesic(ctypes.Structure):
         Arguments:
             name (str): a valid filepath
             url (str): map provider url containing `%(lon)f` and `%(lat)f`
-                       format expression to be replaced by longitude and
-                       latitude found in GPS data
+                format expression to be replaced by longitude and latitude
+                found in GPS data
             **kwargs (dict): key-value pairs to match entries in url according
-                             to python string formatting
+                to python string formatting
         """
         with io.open(name, "wb") as fileobj:
             fileobj.write(self.url_load_location(url, **kwargs))
