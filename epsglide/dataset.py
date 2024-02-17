@@ -21,6 +21,8 @@ TOWGS84_PARAMETER_CODES = {
     8611: "ds"
 }
 
+# alias table to translate https://apps.epsg.org/api/v1/CoordOperationMethod
+# parameter code to epsg.EpsgElement attribute name
 PROJ_METHOD_CODES = {
     1024: "merc", 1026: "merc", 1108: "merc", 9804: "merc", 9805: "merc",
     9659: "latlong",
@@ -30,6 +32,8 @@ PROJ_METHOD_CODES = {
     9822: "lcc"
 }
 
+# alias table to translate https://apps.epsg.org/api/v1/Conversion
+# parameter code to epsg.EpsgElement attribute name
 PROJ_PARAMETER_CODES = {
     8805: "k0",
     8801: "phi0",
@@ -66,11 +70,8 @@ def _fetch(url: str) -> dict:
             raise DatasetNotFound(error.reason)
         else:
             raise DatasetConnexionError("could not reach EPSG API server")
-    # status = resp.getcode()
-    # if status == 200:
-    return json.loads(resp.read())
-    # else:
-    #     raise DatasetNotFound(f"nothing found at {url} endpoint")
+    else:
+        return json.loads(resp.read())
 
 
 # class EpsgElement(ctypes.Structure):
@@ -112,6 +113,9 @@ class EpsgElement(object):
 
         self.populate()
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.Code}: {self.Name}>"
+
     def populate(self):
         pass
 
@@ -120,9 +124,6 @@ class EpsgElement(object):
 
     def from_target(self, value: Union[int, float]) -> float:
         return value * self.Unit.ratio if hasattr(self, "Unit") else None
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} #{self.Code}: {self.Name}>"
 
     def __getattr__(self, attr: str) -> Union[object, None]:
         try:

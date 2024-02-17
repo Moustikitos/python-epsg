@@ -82,12 +82,12 @@ class Geographic(ctypes.Structure):
         else:
             prefix = "metre:1.000"
         return \
-            f"<{prefix}[X={self.x:.3f} Y={self.y:.3f}]"\
+            f"<{prefix}[X={self.x:.3f} Y={self.y:.3f}]" \
             f" alt={self.altitude:.3f}>"
 
 
 class Vincenty_dist(ctypes.Structure):
-    """
+    r"""
     Great circle distance computation result using Vincenty formulae.
 
     Attributes:
@@ -103,8 +103,8 @@ class Vincenty_dist(ctypes.Structure):
 
     def __repr__(self) -> str:
         return \
-            f"<{self.distance/1000:.3f}km "\
-            f"initial bearing={math.degrees(self.initial_bearing):.1f}° "\
+            f"<{self.distance/1000:.3f}km " \
+            f"initial bearing={math.degrees(self.initial_bearing):.1f}° " \
             f"final bearing{math.degrees(self.final_bearing):.1f}°>"
 
 
@@ -125,8 +125,8 @@ class Vincenty_dest(ctypes.Structure):
 
     def __repr__(self) -> str:
         return \
-            f"<lon={_dms(math.degrees(self.longitude))} "\
-            f"lat={_dms(math.degrees(self.latitude))} "\
+            f"<lon={_dms(math.degrees(self.longitude))} " \
+            f"lat={_dms(math.degrees(self.latitude))} " \
             f"end bearing={math.degrees(self.destination_bearing):.1f}°>"
 
 
@@ -179,8 +179,9 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
                 ctypes.POINTER(Geographic)
             ]
 
-    def __call__(self, element: typing.Union[Geodesic, Geographic]) \
-            -> typing.Union[Geodesic, Geographic]:
+    def __call__(
+            self, element: typing.Union[Geodesic, Geographic]
+        ) -> typing.Union[Geodesic, Geographic]:
         """
         """
 
@@ -209,6 +210,14 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
     def inverse(self, xya: Geographic) -> Geodesic:
         return self._proj_inverse(self._struct_, xya)
 
+    def transform(
+        self, element: typing.Union[Geodesic, Geographic], dest_crs
+    ) -> Geographic:
+        """
+        """
+        lla = element if isinstance(element, Geodesic) else self(element)
+        return dest_crs(geoid.lla_dat2da(self._struct, dest_crs._strut_, lla))
+
 
 #######################
 # loading C libraries #
@@ -218,12 +227,14 @@ __dll_ext__ = "dll" if sys.platform.startswith("win") else "so"
 geoid = ctypes.CDLL(_get_file("geoid.%s" % __dll_ext__))
 proj = ctypes.CDLL(_get_file("proj.%s" % __dll_ext__))
 
-geoid.geocentric.argtypes = \
-    [ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geodesic)]
+geoid.geocentric.argtypes = [
+    ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geodesic)
+]
 geoid.geocentric.restype = Geocentric
 
-geoid.geodesic.argtypes = \
-    [ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geocentric)]
+geoid.geodesic.argtypes = [
+    ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geocentric)
+]
 geoid.geodesic.restype = Geodesic
 
 geoid.distance.argtypes = [
@@ -248,9 +259,11 @@ geoid.lla_dat2dat.argtypes = [
 geoid.lla_dat2dat.restype = Geodesic
 
 
-dataset.Ellipsoid.distance = lambda obj, start, stop: \
-    geoid.distance(obj._struct_, start, stop)
+dataset.Ellipsoid.distance = lambda obj, start, stop: geoid.distance(
+    obj._struct_, start, stop
+)
 
 
-dataset.Ellipsoid.destination = lambda obj, start, dist: \
-    geoid.destination(obj._struct_, start, dist)
+dataset.Ellipsoid.destination = lambda obj, start, dist: geoid.destination(
+    obj._struct_, start, dist
+)
