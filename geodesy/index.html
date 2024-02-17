@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Geodesy - The EPSGlide Project</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+        <link href="../style.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="..">The EPSGlide Project</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Geodesy</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Moustikitos/python-epsg/edit/master/docs/geodesy.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#epsglidegeodesy" class="nav-link">epsglide.geodesy</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#geodesic-objects" class="nav-link">Geodesic Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<p><a id="epsglide.geodesy"></a></p>
+<h1 id="epsglidegeodesy">epsglide.geodesy</h1>
+<p>Module for handling geodesic coordinates and their representations.</p>
+<p>This module provides functionality for working with geodesic coordinates,
+allowing for different representations and initialization methods.</p>
+<p>Supported representations:</p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled checked/> Maidenhead</li>
+<li class="task-list-item"><input type="checkbox" disabled checked/> Geohash</li>
+<li class="task-list-item"><input type="checkbox" disabled checked/> Georef</li>
+<li class="task-list-item"><input type="checkbox" disabled checked/> GARS</li>
+</ul>
+<p>Even if angular value are stored in radians, initialisation and
+representation are done using degrees. <code>Geodesic</code> class can be imported
+from <code>geodesy</code> package module:</p>
+<pre><code>&gt;&gt;&gt; from epsglide.geodesy import Geodesic
+&gt;&gt;&gt; dublin = Geodesic(-6.272877, 53.344606, 105.)  # use degrees
+&gt;&gt;&gt; london = Geodesic(-0.127005, 51.518602, 0.)  # use degrees
+&gt;&gt;&gt; dublin  # show degrees in dms format
+&lt;lon=-6.272877 lat=53.344606 alt=105.000&gt;
+&gt;&gt;&gt; london  # show degrees in dms format
+&lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
+&gt;&gt;&gt; london.longitude  # value is stored in radians
+-0.002216655416495398
+</code></pre>
+<p><a id="epsglide.geodesy.Geodesic"></a></p>
+<h2 id="geodesic-objects">Geodesic Objects</h2>
+<pre><code class="language-python">class Geodesic(ctypes.Structure)
+</code></pre>
+<p><code>ctypes</code> structure for geodesic coordinates. This class also provides
+various standart initialization from various representation such as
+<code>maidenhead</code>, <code>georef</code>, <code>geohash</code>.</p>
+<p>The associated GARS area (5minx5min tile) can also be provided.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_maidenhead('IO91wm44sl21gl14kb51om')  # london
+&lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
+&gt;&gt;&gt; epsglide.Geodesic.from_georef('MKQG52883162')  # london
+&lt;lon=-000d07m36.90000s lat=+051d31m7.50000s alt=0.0&gt;
+&gt;&gt;&gt; Geodeis.from_geohash('gcpvj4et8e6pwdj0ft1k', center=True)  # london
+&lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
+</code></pre>
+<pre><code class="language-python">&gt;&gt;&gt; london.gars()
+'360MV46'
+</code></pre>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>longitude</code> <em>float</em> - longitude value of geodesic coordinates in radians.</li>
+<li><code>latitude</code> <em>float</em> - latitude value of geodesic coordinates in radians.</li>
+<li><code>altitude</code> <em>float</em> - elevation of the geodesic coordinates in meters.</li>
+</ul>
+<p><a id="epsglide.geodesy.Geodesic.maidenhead"></a></p>
+<h4 id="maidenhead">maidenhead</h4>
+<pre><code class="language-python">def maidenhead(level: int = 4) -&gt; str
+</code></pre>
+<p>Convert coordinates to maidenhead representation. Precision can be set
+using <code>level</code> parameter.</p>
+<pre><code class="language-python">&gt;&gt;&gt; dublin.maidenhead()
+'IO63ui72gq'
+&gt;&gt;&gt; dublin.maidenhead(level=6)
+'IO63ui72gq19dh'
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>level</code> <em>int</em> - precision level of maidenhead.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - Maidenhead string.</li>
+</ul>
+<p><a id="epsglide.geodesy.Geodesic.from_maidenhead"></a></p>
+<h4 id="from_maidenhead">from_maidenhead</h4>
+<pre><code class="language-python">@staticmethod
+def from_maidenhead(maidenhead: str)
+</code></pre>
+<p>Return Geodesic object from maidenhead string.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>maidenhead</code> <em>str</em> - maidenhead representation.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+</ul>
+<p>A <code>precision</code> tuple (longitude, latitude) in degrees is added as
+  class attribute.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_maidenhead('IO63ui72gq').precision
+(0.00015624999999999998, 0.00015624999999999998)
+&gt;&gt;&gt; Geodesic.from_maidenhead('IO63ui72gq19dh').precision
+(6.510416666666665e-07, 6.510416666666665e-07)
+</code></pre>
+<p><a id="epsglide.geodesy.Geodesic.georef"></a></p>
+<h4 id="georef">georef</h4>
+<pre><code class="language-python">def georef(digit: int = 8) -&gt; str
+</code></pre>
+<p>Convert coordinates to georef. Best precision can be set with a
+maximul of 8 digit (default). With this level, the precision is about
+8.3e-05 degrees in longitude and latitude.</p>
+<pre><code class="language-python">&gt;&gt;&gt; dublin.georef()
+'MKJJ43322037'
+&gt;&gt;&gt; dublin.georef(digit=6)
+'MKJJ433203'
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>digit</code> <em>int</em> - digit number of georef (can be 4, 6 or 8).</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - georef representation.</li>
+</ul>
+<p><a id="epsglide.geodesy.Geodesic.from_georef"></a></p>
+<h4 id="from_georef">from_georef</h4>
+<pre><code class="language-python">@staticmethod
+def from_georef(georef: str)
+</code></pre>
+<p>Return Geodesic object from georef.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_georef('MKJJ433220')
+&lt;lon=-006d15m57.000s lat=+053d22m45.000s alt=0.000&gt;
+&gt;&gt;&gt; Geodesic.from_georef('MKJJ43322037')
+&lt;lon=-006d16m21.900s lat=+053d20m41.100s alt=0.000&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>georef</code> <em>str</em> - georef representation.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+</ul>
+<p>A <code>precision</code> tuple (longitude, latitude) in degrees is added as
+  class attribute.</p>
+<pre><code class="language-python">&gt;&gt;&gt; epsglide.Geodesic.from_georef('MKJJ433220').precision   
+(0.0008333333333333333, 0.0008333333333333333)
+&gt;&gt;&gt; Geodesic.from_georef('MKJJ43322037').precision
+(8.333333333333333e-05, 8.333333333333333e-05)
+</code></pre>
+<p><a id="epsglide.geodesy.Geodesic.gars"></a></p>
+<h4 id="gars">gars</h4>
+<pre><code class="language-python">def gars() -&gt; str
+</code></pre>
+<p>Get the associated GARS Area (5minx5min tile).</p>
+<pre><code class="language-python">&gt;&gt;&gt; dublin.gars()
+'348MY16'
+</code></pre>
+<p><a id="epsglide.geodesy.Geodesic.from_gars"></a></p>
+<h4 id="from_gars">from_gars</h4>
+<pre><code class="language-python">@staticmethod
+def from_gars(gars: str, anchor: str = &quot;&quot;)
+</code></pre>
+<p>Return Geodesic object from gars. Optional anchor value to define
+where to handle 5minx5min tile.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_gars('348MY16', anchor=&quot;nw&quot;)
+&lt;lon=-006d20m0.000s lat=+053d25m0.000s alt=0.000&gt;
+&gt;&gt;&gt; epsg.Geodesic.from_gars('348MY16')
+&lt;lon=-006d17m30.000s lat=+053d22m30.000s alt=0.000&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>gars</code> <em>str</em> - gars representation.</li>
+<li><code>anchor</code> <em>str</em> - tile anchor using <code>n</code>, <code>e</code>, <code>s</code> or <code>w</code>.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+</ul>
+<p>Global precision of centered GARS coordinates is about <code>0.0833</code>
+  degrees in longitude ad latitude.</p>
+<p><a id="epsglide.geodesy.Geodesic.geohash"></a></p>
+<h4 id="geohash">geohash</h4>
+<pre><code class="language-python">def geohash(digit: int = 10,
+            base: str = &quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;) -&gt; str
+</code></pre>
+<p>Convert coordinates to geohash.</p>
+<pre><code class="language-python">&gt;&gt;&gt; london.geohash()
+'gcpvj4et8e'
+&gt;&gt;&gt; Geodesic.from_geohash('gcpvj4et8e')
+&lt;lon=-000d07m37.19969s lat=+051d31m6.97229s alt=0.0&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>digit</code> <em>int</em> - digit number of georef (can be 4, 6 or 8).</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - geohash representation.</li>
+</ul>
+<p><a id="epsglide.geodesy.Geodesic.from_geohash"></a></p>
+<h4 id="from_geohash">from_geohash</h4>
+<pre><code class="language-python">@staticmethod
+def from_geohash(geohash: str,
+                 base: str = &quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;,
+                 center: bool = True)
+</code></pre>
+<p><a id="epsglide.geodesy.Geodesic.url_load_location"></a></p>
+<h4 id="url_load_location">url_load_location</h4>
+<pre><code class="language-python">def url_load_location(url, **kwargs)
+</code></pre>
+<p>Return a static map image data from map provider.</p>
+<pre><code class="language-python">&gt;&gt;&gt; # below a mapbox-static-map url centered on [lon, lat] with a red
+&gt;&gt;&gt; # pin, width, height and zoom to be specified on call
+&gt;&gt;&gt; url = &quot;https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/static&quot;
+... &quot;/pin-s+f74e4e(%(lon)f,%(lat)f)/%(lon)f,%(lat)f,%(zoom)d,0&quot;
+... &quot;/%(width)dx%(height)d?access_token=%(token)s&quot;
+&gt;&gt;&gt; data = dublin.url_load_location(
+...    url, zoom=15, width=600, height=400, token=&quot;xx-xxxxxx-xx&quot;
+... )
+&gt;&gt;&gt; # see `epsg.geodesy.Geodesic.dump_location`
+&gt;&gt;&gt; with io.open(&quot;dump.png&quot;, &quot;wb&quot;) as f:
+...    f.write(data)
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
+  format expression to be replaced by longitude and latitude
+  found in GPS data</li>
+<li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
+  to python string formatting</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>Image data as <code>bytes</code> (py3) or <code>str</code> (py2)</p>
+<p><a id="epsglide.geodesy.Geodesic.dump_location"></a></p>
+<h4 id="dump_location">dump_location</h4>
+<pre><code class="language-python">def dump_location(name, url, **kwargs)
+</code></pre>
+<p>Dump a static map image from map provider into filesystem.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>name</code> <em>str</em> - a valid filepath</li>
+<li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
+  format expression to be replaced by longitude and latitude
+  found in GPS data</li>
+<li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
+  to python string formatting</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2024 THOORENS Bruno - BSD licence</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/jquery-3.6.0.min.js"></script>
+        <script src="../js/bootstrap.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
