@@ -48,7 +48,12 @@ kw = {
     "author_email": "moustikitos@gmail.com",
     "maintainer": "Bruno THOORENS",
     "maintainer_email": "moustikitos@gmail.com",
-    "url": "https://github.com/Moustikitos/python-epsg",
+    "url": "https://moustikitos.github.io/python-epsg/",
+    "project_urls": {  # Optional
+        "Bug Reports": "https://github.com/Moustikitos/python-epsg/issues",
+        "Funding": "https://github.com/Moustikitos/python-epsg?tab=readme-ov-file#support-this-project",
+        "Source": "https://github.com/Moustikitos/python-epsg/",
+    },
     # "download_url": "TODO",
     "description":
         "Efficient great circle computation and projection library "
