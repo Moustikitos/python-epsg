@@ -12,6 +12,9 @@ renderer:
     - title: Home
       name: index
       source: README.md
+    - title: EPSGlide
+      contents:
+        - epsglide.ProjectedCoordRefSystem
     - title: Geodesy
       contents:
         - epsglide.geodesy*
