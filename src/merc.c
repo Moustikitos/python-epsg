@@ -3,7 +3,7 @@
 
 #include "./geoid.h"
 
-EXPORT Geographic merc_forward(Crs *crs, Geodesic *lla){
+EXPORT Geographic merc_forward(Crs *crs, Geodetic *lla){
 	Geographic xya;
 	double ak0;
 
@@ -15,13 +15,13 @@ EXPORT Geographic merc_forward(Crs *crs, Geodesic *lla){
 	return xya;
 }
 
-EXPORT Geodesic merc_inverse(Crs *crs, Geographic *xya){
-	Geodesic lla;
+EXPORT Geodetic merc_inverse(Crs *crs, Geographic *xya){
+	Geodetic lla;
 	double ak0;
 
 	ak0 = cos(fabs(crs->phi1)) * nhu(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, crs->phi1);
 	lla.longitude = (xya->x - crs->x0)/(ak0 * crs->k0) + crs->lambda0;
-	lla.latitude = geodesic_latitude(crs->datum.ellipsoid.e, (xya->y - crs->y0)/(ak0 * crs->k0)) + crs->phi0;
+	lla.latitude = geodetic_latitude(crs->datum.ellipsoid.e, (xya->y - crs->y0)/(ak0 * crs->k0)) + crs->phi0;
 	lla.altitude = xya->altitude;
 
 	return lla;

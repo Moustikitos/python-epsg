@@ -37,7 +37,7 @@ Source :
 The Mercator projections, Peter Osborne, 2008
 § Chapter 5. The geometry of the ellipsoid
 */
-EXPORT Geocentric geocentric(Ellipsoid *ellps, Geodesic *lla){
+EXPORT Geocentric geocentric(Ellipsoid *ellps, Geodetic *lla){
 	Geocentric result;
 	double v;
 
@@ -52,8 +52,8 @@ EXPORT Geocentric geocentric(Ellipsoid *ellps, Geodesic *lla){
 	return result;
 }
 
-EXPORT Geodesic geodesic(Ellipsoid *ellps, Geocentric *xyz){
-	Geodesic result;
+EXPORT Geodetic geodetic(Ellipsoid *ellps, Geocentric *xyz){
+	Geodetic result;
 	double sqrt_xxpyy, phi_i, phi_ip1, e2;
 	int i = 0;
 
@@ -79,7 +79,7 @@ EXPORT Geodesic geodesic(Ellipsoid *ellps, Geocentric *xyz){
 Source :
 http://www.movable-type.co.uk/scripts/latlong-vincenty-direct.html
 */
-EXPORT Vincenty_dist distance(Ellipsoid *ellps, Geodesic *start, Geodesic *stop){ 
+EXPORT Vincenty_dist distance(Ellipsoid *ellps, Geodetic *start, Geodetic *stop){ 
 	Vincenty_dist result;
 	double x, xp1;
 	double L, U1, U2, sU1, cU1, sU2, cU2, A, B, C, u2, k1;
@@ -124,7 +124,7 @@ EXPORT Vincenty_dist distance(Ellipsoid *ellps, Geodesic *start, Geodesic *stop)
 	return result;
 }
 
-EXPORT Vincenty_dest destination(Ellipsoid *ellps, Geodesic *start, Vincenty_dist *dbb){
+EXPORT Vincenty_dest destination(Ellipsoid *ellps, Geodetic *start, Vincenty_dist *dbb){
 	Vincenty_dest result;
 	double lambda, phi2;
 	double tU1, cU1, sU1, sigma, sigma1, sigma_p, salpha, calpha2, u2, A, B;
@@ -181,9 +181,9 @@ EXPORT Geocentric xyz_dat2dat(Datum *src, Datum *dst, Geocentric *xyz){
 	return result;
 }
 
-EXPORT Geodesic lla_dat2dat(Datum *src, Datum *dst, Geodesic *lla){
-	static Geodesic result;
-	Geodesic tmp;
+EXPORT Geodetic lla_dat2dat(Datum *src, Datum *dst, Geodetic *lla){
+	static Geodetic result;
+	Geodetic tmp;
 	Geocentric xyz_src, xyz_dst;
 
 	tmp.longitude = lla->longitude + src->prime.longitude; //* DEGREE2RAD;
@@ -193,15 +193,15 @@ EXPORT Geodesic lla_dat2dat(Datum *src, Datum *dst, Geodesic *lla){
 	xyz_src = geocentric(&src->ellipsoid, lla);
 	xyz_dst = xyz_dat2dat(src, dst, &xyz_src);
 
-	result = geodesic(&dst->ellipsoid, &xyz_src);
+	result = geodetic(&dst->ellipsoid, &xyz_src);
 	result.longitude -= dst->prime.longitude; // * DEGREE2RAD;
 
 	return result;
 }
 
-EXPORT Vincenty_dest * npoints(Ellipsoid *ellps, Geodesic *lla0, Geodesic *lla1, int n){
+EXPORT Vincenty_dest * npoints(Ellipsoid *ellps, Geodetic *lla0, Geodetic *lla1, int n){
 	Vincenty_dist dbb;
-	Geodesic lla;
+	Geodetic lla;
 	Vincenty_dest llb, *result;
 	double step;
 	int i;

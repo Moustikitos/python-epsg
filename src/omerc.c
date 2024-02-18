@@ -41,7 +41,7 @@ EXPORT Coef omerc_coef(double a, double e, double lambda0, double phi0, double k
 	return result;
 }
 
-EXPORT Geographic omerc_forward(Crs *crs, Geodesic *lla){
+EXPORT Geographic omerc_forward(Crs *crs, Geodetic *lla){
 	Geographic xya;
 	Coef coef;
 	double t, Q, S, T, V, U, v, u, cphi, sphi;
@@ -75,8 +75,8 @@ EXPORT Geographic omerc_forward(Crs *crs, Geodesic *lla){
 	return xya;
 }
 
-EXPORT Geodesic omerc_inverse(Crs *crs, Geodesic *xya){
-	Geodesic lla;
+EXPORT Geodetic omerc_inverse(Crs *crs, Geodetic *xya){
+	Geodetic lla;
 	Coef coef;
 	coef = omerc_coef(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, crs->lambda0, crs->phi0, crs->k0, crs->azimut);
 	return lla;

@@ -10,7 +10,7 @@ static double F6 = 6*5*4*3*2;
 static double F7 = 7*6*5*4*3*2;
 static double F8 = 8*7*6*5*4*3*2;
 
-EXPORT Geographic tmerc_forward(Crs *crs, Geodesic *lla){
+EXPORT Geographic tmerc_forward(Crs *crs, Geodetic *lla){
 	Geographic xya;
 	double m, v, lc, B, t, lc2, B2, B3, B4, t2, t4, t6, W3, W4, W5, W6, W7_, W8_, X, Y;
 
@@ -42,8 +42,8 @@ EXPORT Geographic tmerc_forward(Crs *crs, Geodesic *lla){
 	return xya;
 }
 
-EXPORT Geodesic tmerc_inverse(Crs* crs, Geographic *xya){
-	Geodesic lla;
+EXPORT Geodetic tmerc_inverse(Crs* crs, Geographic *xya){
+	Geodetic lla;
 	double f, v, x, x2, B, t, c, B2, B3, B4, t2, t4, t6, V3, V5, V7_, U4, U6, U8_, lambda, phi;
 
 	f = footpoint_latitude(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, meridian_distance(crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, crs->phi0) + (xya->y - crs->y0)/crs->k0);

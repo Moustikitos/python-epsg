@@ -36,7 +36,7 @@ static void coef(double *result, double a, double e, double lambda0, double phi0
 }
 
 
-EXPORT Geographic lcc_forward(Crs *crs, Geodesic *lla){
+EXPORT Geographic lcc_forward(Crs *crs, Geodetic *lla){
 	Geographic xya;
 	double L, result[5];
 
@@ -50,8 +50,8 @@ EXPORT Geographic lcc_forward(Crs *crs, Geodesic *lla){
 	return xya;
 }
 
-EXPORT Geodesic lcc_inverse(Crs *crs, Geographic *xya){
-	Geodesic lla;
+EXPORT Geodetic lcc_inverse(Crs *crs, Geographic *xya){
+	Geodetic lla;
 	double R, v, result[5];
 
 	coef(result, crs->datum.ellipsoid.a, crs->datum.ellipsoid.e, crs->lambda0, crs->phi0, crs->phi1, crs->phi2, crs->x0, crs->y0, crs->k0);
@@ -59,7 +59,7 @@ EXPORT Geodesic lcc_inverse(Crs *crs, Geographic *xya){
 	v = atan2(xya->x-result[3], result[4]-xya->y);
 
 	lla.longitude = result[0] + v/result[1];
-	lla.latitude = geodesic_latitude(crs->datum.ellipsoid.e, -1/result[1] * log(fabs(R/result[2])));
+	lla.latitude = geodetic_latitude(crs->datum.ellipsoid.e, -1/result[1] * log(fabs(R/result[2])));
 	lla.altitude = xya->altitude;
 
 	return lla;

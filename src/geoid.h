@@ -109,12 +109,12 @@ typedef struct{
     double longitude;
     double latitude;
     double altitude;
-}Geodesic;
+}Geodetic;
 
 typedef struct{
     double px;
     double py;
-    Geodesic lla;
+    Geodetic lla;
     Geographic xya;
 }Point;
 
@@ -135,7 +135,7 @@ static double p(double a, double e, double latitude) {return cos(latitude) * nhu
 static double rho(double a, double e, double latitude) {return  a * (1-e*e) / pow(1 - pow(e * sin(latitude), 2), 1.5);}
 static double isometric_latitude(double e, double latitude){return log(tan(M_PI/4 + latitude/2) * pow((1-e*sin(latitude))/(1+e*sin(latitude)), e/2));}
 
-static double geodesic_latitude(double e, double iso_phi){
+static double geodetic_latitude(double e, double iso_phi){
     double phi_i, sinphi_i, phi_ip1;
     int i = 0;
     phi_i = 2 * atan(exp(iso_phi)) - M_PI/2;

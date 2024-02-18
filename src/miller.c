@@ -10,7 +10,7 @@
 // atan(exp(4y/5a)) - pi/4 = 2phi/5
 // 5/2 * (atan(exp(4y/5a)) - pi/4) = phi : reverse formula
 
-EXPORT Geographic miller_forward(Crs *crs, Geodesic *lla){
+EXPORT Geographic miller_forward(Crs *crs, Geodetic *lla){
 	Geographic xya;
 
 	xya.x = crs->datum.ellipsoid.a * (lla->longitude - crs->lambda0) + crs->x0;
@@ -20,8 +20,8 @@ EXPORT Geographic miller_forward(Crs *crs, Geodesic *lla){
 	return xya;
 }
 
-EXPORT Geodesic miller_inverse(Crs *crs, Geographic *xya){
-	Geodesic lla;
+EXPORT Geodetic miller_inverse(Crs *crs, Geographic *xya){
+	Geodetic lla;
 
 	lla.longitude = (xya->x - crs->x0)/crs->datum.ellipsoid.a + crs->lambda0;
 	lla.latitude = 2.5 * (atan(exp(0.8*(xya->y - crs->y0)/crs->datum.ellipsoid.a)) - M_PI/4);
