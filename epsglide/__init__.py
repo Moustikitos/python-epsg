@@ -1,5 +1,11 @@
 # -*- encoding:utf-8 -*-
 
+"""
+This package aims to perform simple requests to [`EPSG GeoRepository API`](htt\
+ps://apps.epsg.org/api/swagger/ui/index) and provides associated geodesic
+computation and map projection.
+"""
+
 import os
 import sys
 import math
@@ -7,7 +13,7 @@ import ctypes
 import typing
 
 from epsglide import dataset
-from epsglide.geodesy import Geodesic, _dms
+from epsglide.geodesy import Geodetic, _dms
 
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
@@ -37,9 +43,9 @@ class Geocentric(ctypes.Structure):
         z (float): Z-axis value
 
     ```python
-    >>> Gryd.Geocentric(4457584, 429216, 4526544)
+    >>> epsglide.Geocentric(4457584, 429216, 4526544)
     <X=4457584.000 Y=429216.000 Z=4526544.000>
-    >>> Gryd.Geocentric(x=4457584, y=429216, z=4526544)
+    >>> epsglide.Geocentric(x=4457584, y=429216, z=4526544)
     <X=4457584.000 Y=429216.000 Z=4526544.000>
     ```
     """
@@ -64,9 +70,9 @@ class Geographic(ctypes.Structure):
         altitude (float): elevation in meters
 
     ```python
-    >>> Gryd.Geographic(5721186, 2948518, 105)
+    >>> epsglide.Geographic(5721186, 2948518, 105)
     <X=5721186.000 Y=2948518.000 alt=105.000>
-    >>> Gryd.Geographic(x=5721186, y=2948518, altitude=105)
+    >>> epsglide.Geographic(x=5721186, y=2948518, altitude=105)
     <X=5721186.000 Y=2948518.000 alt=105.000>
     ```
     """
@@ -132,6 +138,27 @@ class Vincenty_dest(ctypes.Structure):
 
 class ProjectedCoordRefSystem(dataset.EpsgElement):
     """
+    Coordinate reference system object allowing projection of geodetic
+    coordinates to flat map (geographic coordinates).
+
+    ```python
+    >>> import epsglide
+    >>> osgb36 = epsglide.ProjectedCoordRefSystem(27700)
+    >>> london = epsglide.Geodetic(-0.127005, 51.518602, 0.)  # use degrees
+    >>> osgb36(london)
+    <metre:1.000[X=529939.106 Y=181680.962] alt=0.000>
+    >>> osgb36.Projection
+    {'Code': 19916, 'Name': 'British National Grid', 'href': 'https://apps.eps\
+g.org/api/v1/Conversion/19916'}
+    ```
+
+    Attributes:
+        Datum (dataset.GeodeticCoordRefSystem): geodetic reference system.
+        Conversion (dataset.Conversion): projection method and parameters.
+        CoordOperationMethod (dataset.CoordOperationMethod): projection
+            description.
+        CoordSystem (dataset.CoordSystem): 2D coordinate system and units.
+        parameters (list): list of `dataset.CoordOperationParameter`.
     """
 
     def populate(self):
@@ -170,24 +197,24 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
             self._proj_forward.restype = Geographic
             self._proj_forward.argtypes = [
                 ctypes.POINTER(dataset.src.Crs),
-                ctypes.POINTER(Geodesic)
+                ctypes.POINTER(Geodetic)
             ]
             self._proj_inverse = getattr(proj, f"{name}_inverse")
-            self._proj_inverse.restype = Geodesic
+            self._proj_inverse.restype = Geodetic
             self._proj_inverse.argtypes = [
                 ctypes.POINTER(dataset.src.Crs),
                 ctypes.POINTER(Geographic)
             ]
 
     def __call__(
-        self, element: typing.Union[Geodesic, Geographic]
-    ) -> typing.Union[Geodesic, Geographic]:
+        self, element: typing.Union[Geodetic, Geographic]
+    ) -> typing.Union[Geodetic, Geographic]:
         """
         """
 
-        if isinstance(element, Geodesic):
+        if isinstance(element, Geodetic):
             longitude = element.longitude + self._struct_.datum.prime.longitude
-            lla = Geodesic(
+            lla = Geodetic(
                 longitude * _TODEG, element.latitude * _TODEG, element.altitude
             )
             xya = self.forward(lla)
@@ -204,18 +231,18 @@ class ProjectedCoordRefSystem(dataset.EpsgElement):
             lla.longitude -= self._struct_.datum.prime.longitude
             return lla
 
-    def forward(self, lla: Geodesic) -> Geographic:
+    def forward(self, lla: Geodetic) -> Geographic:
         return self._proj_forward(self._struct_, lla)
 
-    def inverse(self, xya: Geographic) -> Geodesic:
+    def inverse(self, xya: Geographic) -> Geodetic:
         return self._proj_inverse(self._struct_, xya)
 
     def transform(
-        self, element: typing.Union[Geodesic, Geographic], dest_crs
+        self, element: typing.Union[Geodetic, Geographic], dest_crs
     ) -> Geographic:
         """
         """
-        lla = element if isinstance(element, Geodesic) else self(element)
+        lla = element if isinstance(element, Geodetic) else self(element)
         return dest_crs(geoid.lla_dat2da(self._struct, dest_crs._strut_, lla))
 
 
@@ -228,25 +255,25 @@ geoid = ctypes.CDLL(_get_file("geoid.%s" % __dll_ext__))
 proj = ctypes.CDLL(_get_file("proj.%s" % __dll_ext__))
 
 geoid.geocentric.argtypes = [
-    ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geodesic)
+    ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geodetic)
 ]
 geoid.geocentric.restype = Geocentric
 
-geoid.geodesic.argtypes = [
+geoid.geodetic.argtypes = [
     ctypes.POINTER(dataset.src.Ellipsoid), ctypes.POINTER(Geocentric)
 ]
-geoid.geodesic.restype = Geodesic
+geoid.geodetic.restype = Geodetic
 
 geoid.distance.argtypes = [
     ctypes.POINTER(dataset.src.Ellipsoid),
-    ctypes.POINTER(Geodesic),
-    ctypes.POINTER(Geodesic)
+    ctypes.POINTER(Geodetic),
+    ctypes.POINTER(Geodetic)
 ]
 geoid.distance.restype = Vincenty_dist
 
 geoid.destination.argtypes = [
     ctypes.POINTER(dataset.src.Ellipsoid),
-    ctypes.POINTER(Geodesic),
+    ctypes.POINTER(Geodetic),
     ctypes.POINTER(Vincenty_dist)
 ]
 geoid.destination.restype = Vincenty_dest
@@ -254,9 +281,9 @@ geoid.destination.restype = Vincenty_dest
 geoid.lla_dat2dat.argtypes = [
     ctypes.POINTER(dataset.src.Crs),
     ctypes.POINTER(dataset.src.Crs),
-    ctypes.POINTER(Geodesic)
+    ctypes.POINTER(Geodetic)
 ]
-geoid.lla_dat2dat.restype = Geodesic
+geoid.lla_dat2dat.restype = Geodetic
 
 
 dataset.Ellipsoid.distance = lambda obj, start, stop: geoid.distance(

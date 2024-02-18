@@ -79,6 +79,8 @@ class EpsgElement(object):
     """
     """
 
+    _struct_: src.ctypes.Structure = None
+
     def __init__(self, code: int = None, name: str = None) -> None:
         if not any([code, name]):
             raise DatasetIdentificationError("epsg code or keyword is needed")
@@ -214,7 +216,7 @@ class GeodeticCoordRefSystem(EpsgElement):
                 with open(path, "w") as out:
                     json.dump(data, out, indent=2)
             else:
-                raise Exception()
+                raise DatasetNotFound("No transformation found.")
 
         for param in data["ParameterValues"]:
             try:
