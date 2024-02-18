@@ -279,8 +279,8 @@ geoid.destination.argtypes = [
 geoid.destination.restype = Vincenty_dest
 
 geoid.lla_dat2dat.argtypes = [
-    ctypes.POINTER(dataset.src.Crs),
-    ctypes.POINTER(dataset.src.Crs),
+    ctypes.POINTER(dataset.src.Datum),
+    ctypes.POINTER(dataset.src.Datum),
     ctypes.POINTER(Geodetic)
 ]
 geoid.lla_dat2dat.restype = Geodetic
@@ -293,4 +293,10 @@ dataset.Ellipsoid.distance = lambda obj, start, stop: geoid.distance(
 
 dataset.Ellipsoid.destination = lambda obj, start, dist: geoid.destination(
     obj._struct_, start, dist
+)
+
+WGS84 = dataset.GeodeticCoordRefSystem(4326)
+
+dataset.GeodeticCoordRefSystem.to_wgs84 = lambda obj, lla: geoid.lla_dat2dat(
+    obj._struct_, WGS84._struct_, lla
 )

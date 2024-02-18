@@ -198,6 +198,9 @@ class GeodeticCoordRefSystem(EpsgElement):
         self._struct_.ellipsoid = self.Datum.Ellipsoid._struct_
         self._struct_.prime = self.Datum.PrimeMeridian._struct_
 
+        if self.id == 4326:
+            return
+
         path = os.path.join(DATA, "ToWgs84", f"{self.id}.json")
         if os.path.exists(path):
             with open(path, "r") as in_:
