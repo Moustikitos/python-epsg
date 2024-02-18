@@ -35,6 +35,9 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
+                            <li class="navitem">
+                                <a href="../epsglide/" class="nav-link">EPSGlide</a>
+                            </li>
                             <li class="navitem active">
                                 <a href="./" class="nav-link">Geodesy</a>
                             </li>
@@ -47,7 +50,7 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../epsglide/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
@@ -79,7 +82,7 @@
             
             <li class="nav-item" data-level="1"><a href="#epsglidegeodesy" class="nav-link">epsglide.geodesy</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-level="2"><a href="#geodesic-objects" class="nav-link">Geodesic Objects</a>
+            <li class="nav-item" data-level="2"><a href="#geodetic-objects" class="nav-link">Geodetic Objects</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -92,8 +95,8 @@
 
 <p><a id="epsglide.geodesy"></a></p>
 <h1 id="epsglidegeodesy">epsglide.geodesy</h1>
-<p>Module for handling geodesic coordinates and their representations.</p>
-<p>This module provides functionality for working with geodesic coordinates,
+<p>Module for handling geodetic coordinates and their representations.</p>
+<p>This module provides functionality for working with geodetic coordinates,
 allowing for different representations and initialization methods.</p>
 <p>Supported representations:</p>
 <ul class="task-list">
@@ -103,11 +106,11 @@ allowing for different representations and initialization methods.</p>
 <li class="task-list-item"><input type="checkbox" disabled checked/> GARS</li>
 </ul>
 <p>Even if angular value are stored in radians, initialisation and
-representation are done using degrees. <code>Geodesic</code> class can be imported
+representation are done using degrees. <code>Geodetic</code> class can be imported
 from <code>geodesy</code> package module:</p>
-<pre><code>&gt;&gt;&gt; from epsglide.geodesy import Geodesic
-&gt;&gt;&gt; dublin = Geodesic(-6.272877, 53.344606, 105.)  # use degrees
-&gt;&gt;&gt; london = Geodesic(-0.127005, 51.518602, 0.)  # use degrees
+<pre><code>&gt;&gt;&gt; from epsglide.geodesy import Geodetic
+&gt;&gt;&gt; dublin = Geodetic(-6.272877, 53.344606, 105.)  # use degrees
+&gt;&gt;&gt; london = Geodetic(-0.127005, 51.518602, 0.)  # use degrees
 &gt;&gt;&gt; dublin  # show degrees in dms format
 &lt;lon=-6.272877 lat=53.344606 alt=105.000&gt;
 &gt;&gt;&gt; london  # show degrees in dms format
@@ -115,17 +118,17 @@ from <code>geodesy</code> package module:</p>
 &gt;&gt;&gt; london.longitude  # value is stored in radians
 -0.002216655416495398
 </code></pre>
-<p><a id="epsglide.geodesy.Geodesic"></a></p>
-<h2 id="geodesic-objects">Geodesic Objects</h2>
-<pre><code class="language-python">class Geodesic(ctypes.Structure)
+<p><a id="epsglide.geodesy.Geodetic"></a></p>
+<h2 id="geodetic-objects">Geodetic Objects</h2>
+<pre><code class="language-python">class Geodetic(ctypes.Structure)
 </code></pre>
-<p><code>ctypes</code> structure for geodesic coordinates. This class also provides
+<p><code>ctypes</code> structure for geodetic coordinates. This class also provides
 various standart initialization from various representation such as
 <code>maidenhead</code>, <code>georef</code>, <code>geohash</code>.</p>
 <p>The associated GARS area (5minx5min tile) can also be provided.</p>
-<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_maidenhead('IO91wm44sl21gl14kb51om')  # london
+<pre><code class="language-python">&gt;&gt;&gt; Geodetic.from_maidenhead('IO91wm44sl21gl14kb51om')  # london
 &lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
-&gt;&gt;&gt; epsglide.Geodesic.from_georef('MKQG52883162')  # london
+&gt;&gt;&gt; epsglide.Geodetic.from_georef('MKQG52883162')  # london
 &lt;lon=-000d07m36.90000s lat=+051d31m7.50000s alt=0.0&gt;
 &gt;&gt;&gt; Geodeis.from_geohash('gcpvj4et8e6pwdj0ft1k', center=True)  # london
 &lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
@@ -135,11 +138,11 @@ various standart initialization from various representation such as
 </code></pre>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>longitude</code> <em>float</em> - longitude value of geodesic coordinates in radians.</li>
-<li><code>latitude</code> <em>float</em> - latitude value of geodesic coordinates in radians.</li>
-<li><code>altitude</code> <em>float</em> - elevation of the geodesic coordinates in meters.</li>
+<li><code>longitude</code> <em>float</em> - longitude value of geodetic coordinates in radians.</li>
+<li><code>latitude</code> <em>float</em> - latitude value of geodetic coordinates in radians.</li>
+<li><code>altitude</code> <em>float</em> - elevation of the geodetic coordinates in meters.</li>
 </ul>
-<p><a id="epsglide.geodesy.Geodesic.maidenhead"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.maidenhead"></a></p>
 <h4 id="maidenhead">maidenhead</h4>
 <pre><code class="language-python">def maidenhead(level: int = 4) -&gt; str
 </code></pre>
@@ -158,28 +161,28 @@ using <code>level</code> parameter.</p>
 <ul>
 <li><code>str</code> - Maidenhead string.</li>
 </ul>
-<p><a id="epsglide.geodesy.Geodesic.from_maidenhead"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.from_maidenhead"></a></p>
 <h4 id="from_maidenhead">from_maidenhead</h4>
 <pre><code class="language-python">@staticmethod
 def from_maidenhead(maidenhead: str)
 </code></pre>
-<p>Return Geodesic object from maidenhead string.</p>
+<p>Return Geodetic object from maidenhead string.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>maidenhead</code> <em>str</em> - maidenhead representation.</li>
 </ul>
 <p><strong>Returns</strong>:</p>
 <ul>
-<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+<li><code>epsglide.Geodetic</code> - geodetic coordinates.</li>
 </ul>
 <p>A <code>precision</code> tuple (longitude, latitude) in degrees is added as
   class attribute.</p>
-<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_maidenhead('IO63ui72gq').precision
+<pre><code class="language-python">&gt;&gt;&gt; Geodetic.from_maidenhead('IO63ui72gq').precision
 (0.00015624999999999998, 0.00015624999999999998)
-&gt;&gt;&gt; Geodesic.from_maidenhead('IO63ui72gq19dh').precision
+&gt;&gt;&gt; Geodetic.from_maidenhead('IO63ui72gq19dh').precision
 (6.510416666666665e-07, 6.510416666666665e-07)
 </code></pre>
-<p><a id="epsglide.geodesy.Geodesic.georef"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.georef"></a></p>
 <h4 id="georef">georef</h4>
 <pre><code class="language-python">def georef(digit: int = 8) -&gt; str
 </code></pre>
@@ -199,15 +202,15 @@ maximul of 8 digit (default). With this level, the precision is about
 <ul>
 <li><code>str</code> - georef representation.</li>
 </ul>
-<p><a id="epsglide.geodesy.Geodesic.from_georef"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.from_georef"></a></p>
 <h4 id="from_georef">from_georef</h4>
 <pre><code class="language-python">@staticmethod
 def from_georef(georef: str)
 </code></pre>
-<p>Return Geodesic object from georef.</p>
-<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_georef('MKJJ433220')
+<p>Return Geodetic object from georef.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodetic.from_georef('MKJJ433220')
 &lt;lon=-006d15m57.000s lat=+053d22m45.000s alt=0.000&gt;
-&gt;&gt;&gt; Geodesic.from_georef('MKJJ43322037')
+&gt;&gt;&gt; Geodetic.from_georef('MKJJ43322037')
 &lt;lon=-006d16m21.900s lat=+053d20m41.100s alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
@@ -216,16 +219,16 @@ def from_georef(georef: str)
 </ul>
 <p><strong>Returns</strong>:</p>
 <ul>
-<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+<li><code>epsglide.Geodetic</code> - geodetic coordinates.</li>
 </ul>
 <p>A <code>precision</code> tuple (longitude, latitude) in degrees is added as
   class attribute.</p>
-<pre><code class="language-python">&gt;&gt;&gt; epsglide.Geodesic.from_georef('MKJJ433220').precision   
+<pre><code class="language-python">&gt;&gt;&gt; epsglide.Geodetic.from_georef('MKJJ433220').precision   
 (0.0008333333333333333, 0.0008333333333333333)
-&gt;&gt;&gt; Geodesic.from_georef('MKJJ43322037').precision
+&gt;&gt;&gt; Geodetic.from_georef('MKJJ43322037').precision
 (8.333333333333333e-05, 8.333333333333333e-05)
 </code></pre>
-<p><a id="epsglide.geodesy.Geodesic.gars"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.gars"></a></p>
 <h4 id="gars">gars</h4>
 <pre><code class="language-python">def gars() -&gt; str
 </code></pre>
@@ -233,16 +236,16 @@ def from_georef(georef: str)
 <pre><code class="language-python">&gt;&gt;&gt; dublin.gars()
 '348MY16'
 </code></pre>
-<p><a id="epsglide.geodesy.Geodesic.from_gars"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.from_gars"></a></p>
 <h4 id="from_gars">from_gars</h4>
 <pre><code class="language-python">@staticmethod
 def from_gars(gars: str, anchor: str = &quot;&quot;)
 </code></pre>
-<p>Return Geodesic object from gars. Optional anchor value to define
+<p>Return Geodetic object from gars. Optional anchor value to define
 where to handle 5minx5min tile.</p>
-<pre><code class="language-python">&gt;&gt;&gt; Geodesic.from_gars('348MY16', anchor=&quot;nw&quot;)
+<pre><code class="language-python">&gt;&gt;&gt; Geodetic.from_gars('348MY16', anchor=&quot;nw&quot;)
 &lt;lon=-006d20m0.000s lat=+053d25m0.000s alt=0.000&gt;
-&gt;&gt;&gt; epsg.Geodesic.from_gars('348MY16')
+&gt;&gt;&gt; epsg.Geodetic.from_gars('348MY16')
 &lt;lon=-006d17m30.000s lat=+053d22m30.000s alt=0.000&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
@@ -252,37 +255,56 @@ where to handle 5minx5min tile.</p>
 </ul>
 <p><strong>Returns</strong>:</p>
 <ul>
-<li><code>epsglide.Geodesic</code> - geodesic coordinates.</li>
+<li><code>epsglide.Geodetic</code> - geodetic coordinates.</li>
 </ul>
 <p>Global precision of centered GARS coordinates is about <code>0.0833</code>
   degrees in longitude ad latitude.</p>
-<p><a id="epsglide.geodesy.Geodesic.geohash"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.geohash"></a></p>
 <h4 id="geohash">geohash</h4>
 <pre><code class="language-python">def geohash(digit: int = 10,
             base: str = &quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;) -&gt; str
 </code></pre>
-<p>Convert coordinates to geohash.</p>
+<p>Convert coordinates to geohash. Precision can be set using <code>digit</code>
+parameter.</p>
 <pre><code class="language-python">&gt;&gt;&gt; london.geohash()
 'gcpvj4et8e'
-&gt;&gt;&gt; Geodesic.from_geohash('gcpvj4et8e')
-&lt;lon=-000d07m37.19969s lat=+051d31m6.97229s alt=0.0&gt;
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>digit</code> <em>int</em> - digit number of georef (can be 4, 6 or 8).</li>
+<li><code>digit</code> <em>int</em> - digit number of geohash [default: 10].</li>
+<li><code>base</code> <em>str</em> - a 32-sized string of unique caracter. Same base should
+  be used to decode correctly the geohash.</li>
 </ul>
 <p><strong>Returns</strong>:</p>
 <ul>
 <li><code>str</code> - geohash representation.</li>
 </ul>
-<p><a id="epsglide.geodesy.Geodesic.from_geohash"></a></p>
+<p><a id="epsglide.geodesy.Geodetic.from_geohash"></a></p>
 <h4 id="from_geohash">from_geohash</h4>
 <pre><code class="language-python">@staticmethod
 def from_geohash(geohash: str,
                  base: str = &quot;0123456789bcdefghjkmnpqrstuvwxyz&quot;,
                  center: bool = True)
 </code></pre>
-<p><a id="epsglide.geodesy.Geodesic.url_load_location"></a></p>
+<p>Return Geodetic object from geohash.</p>
+<pre><code class="language-python">&gt;&gt;&gt; Geodetic.from_geohash('gcpvj4et8e')
+&lt;lon=-000d07m37.19969s lat=+051d31m6.97229s alt=0.0&gt;
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>base</code> <em>str</em> - a 32-sized string of unique caracter used to encode the
+  geodetic coordinates.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>epsglide.Geodetic</code> - geodetic coordinates.</li>
+</ul>
+<p>A <code>precision</code> tuple (longitude, latitude) in degrees is added as
+  class attribute.</p>
+<pre><code class="language-python">&gt;&gt;&gt; epsglide.Geodetic.from_geohash('gcpvj4et8e').precision
+(2.682209014892578e-06, 1.341104507446289e-06)
+</code></pre>
+<p><a id="epsglide.geodesy.Geodetic.url_load_location"></a></p>
 <h4 id="url_load_location">url_load_location</h4>
 <pre><code class="language-python">def url_load_location(url, **kwargs)
 </code></pre>
@@ -295,33 +317,33 @@ def from_geohash(geohash: str,
 &gt;&gt;&gt; data = dublin.url_load_location(
 ...    url, zoom=15, width=600, height=400, token=&quot;xx-xxxxxx-xx&quot;
 ... )
-&gt;&gt;&gt; # see `epsg.geodesy.Geodesic.dump_location`
+&gt;&gt;&gt; # see `epsg.geodesy.Geodetic.dump_location`
 &gt;&gt;&gt; with io.open(&quot;dump.png&quot;, &quot;wb&quot;) as f:
 ...    f.write(data)
 </code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
-  format expression to be replaced by longitude and latitude
-  found in GPS data</li>
+  format expression to be replaced by longitude and latitude in
+  the proper unit according to map provider.</li>
 <li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
-  to python string formatting</li>
+  to python string formatting.</li>
 </ul>
 <p><strong>Returns</strong>:</p>
-<p>Image data as <code>bytes</code> (py3) or <code>str</code> (py2)</p>
-<p><a id="epsglide.geodesy.Geodesic.dump_location"></a></p>
+<p>Image data as <code>bytes</code> (py3) or <code>str</code> (py2).</p>
+<p><a id="epsglide.geodesy.Geodetic.dump_location"></a></p>
 <h4 id="dump_location">dump_location</h4>
 <pre><code class="language-python">def dump_location(name, url, **kwargs)
 </code></pre>
 <p>Dump a static map image from map provider into filesystem.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>name</code> <em>str</em> - a valid filepath</li>
+<li><code>name</code> <em>str</em> - a valid filepath.</li>
 <li><code>url</code> <em>str</em> - map provider url containing <code>%(lon)f</code> and <code>%(lat)f</code>
   format expression to be replaced by longitude and latitude
-  found in GPS data</li>
+  found in GPS data.</li>
 <li><code>**kwargs</code> <em>dict</em> - key-value pairs to match entries in url according
-  to python string formatting</li>
+  to python string formatting.</li>
 </ul></div>
             </div>
         </div>
