@@ -39,7 +39,7 @@ Represents an EPSG dataset element.
 def __repr__()
 ```
 
-Return a string representation of the EpsgElement object.
+Return a string representation of the `EpsgElement` object.
 
 **Returns**:
 
@@ -66,7 +66,7 @@ def to_target(value: Union[int, float]) -> float
 ```
 
 Convert a value to the target unit, if applicable, ie: the
-EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+`EpsgElement` must contain a `Unit` class as attribute.
 
 **Arguments**:
 
@@ -87,7 +87,7 @@ def from_target(value: Union[int, float]) -> float
 ```
 
 Convert a value from the target unit, if applicable, ie: the
-EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+`EpsgElement` must contain a `Unit` class as attribute.
 
 **Arguments**:
 
