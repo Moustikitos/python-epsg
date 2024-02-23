@@ -18,6 +18,11 @@ from epsglide.geodesy import Geodetic, _dms
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
 
+try:
+    WGS84 = dataset.GeodeticCoordRefSystem(4326)
+except Exception:
+    WGS84 = None
+
 
 # find data file
 def _get_file(name: str) -> str:
@@ -153,7 +158,8 @@ g.org/api/v1/Conversion/19916'}
     ```
 
     Attributes:
-        Datum (dataset.GeodeticCoordRefSystem): geodetic reference system.
+        GeodeticCoordRefSystem (dataset.GeodeticCoordRefSystem): geodetic
+            reference system.
         Conversion (dataset.Conversion): projection method and parameters.
         CoordOperationMethod (dataset.CoordOperationMethod): projection
             description.
@@ -162,11 +168,11 @@ g.org/api/v1/Conversion/19916'}
     """
 
     def populate(self):
-        self.Datum = dataset.GeodeticCoordRefSystem(
+        self.GeodeticCoordRefSystem = dataset.GeodeticCoordRefSystem(
             self.BaseCoordRefSystem["Code"]
         )
         self._struct_ = dataset.src.Crs()
-        self._struct_.datum = self.Datum._struct_
+        self._struct_.datum = self.GeodeticCoordRefSystem._struct_
 
         self.Conversion = dataset.Conversion(self.Projection["Code"])
         self.CoordOperationMethod = dataset.CoordOperationMethod(
@@ -285,17 +291,13 @@ geoid.lla_dat2dat.argtypes = [
 ]
 geoid.lla_dat2dat.restype = Geodetic
 
-
 dataset.Ellipsoid.distance = lambda obj, start, stop: geoid.distance(
     obj._struct_, start, stop
 )
 
-
 dataset.Ellipsoid.destination = lambda obj, start, dist: geoid.destination(
     obj._struct_, start, dist
 )
-
-WGS84 = dataset.GeodeticCoordRefSystem(4326)
 
 dataset.GeodeticCoordRefSystem.to_wgs84 = lambda obj, lla: geoid.lla_dat2dat(
     obj._struct_, WGS84._struct_, lla
