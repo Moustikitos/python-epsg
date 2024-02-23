@@ -291,14 +291,14 @@ geoid.lla_dat2dat.argtypes = [
 ]
 geoid.lla_dat2dat.restype = Geodetic
 
-dataset.Ellipsoid.distance = lambda obj, start, stop: geoid.distance(
-    obj._struct_, start, stop
-)
+dataset.Ellipsoid.distance = lambda obj, start, stop: \
+    geoid.distance(obj._struct_, start, stop)
 
-dataset.Ellipsoid.destination = lambda obj, start, dist: geoid.destination(
-    obj._struct_, start, dist
-)
+dataset.Ellipsoid.destination = lambda obj, start, dist: \
+    geoid.destination(obj._struct_, start, dist)
 
-dataset.GeodeticCoordRefSystem.to_wgs84 = lambda obj, lla: geoid.lla_dat2dat(
-    obj._struct_, WGS84._struct_, lla
-)
+dataset.GeodeticCoordRefSystem.to_wgs84 = lambda obj, lla: \
+    geoid.lla_dat2dat(obj._struct_, WGS84._struct_, lla)
+
+dataset.GeodeticCoordRefSystem.to_crs = lambda obj, dst, lla: \
+    geoid.lla_dat2dat(obj._struct_, dst._struct_, lla)
