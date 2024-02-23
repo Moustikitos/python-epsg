@@ -36,11 +36,11 @@ PROJ_METHOD_CODES = {
 # parameter code to epsg.EpsgElement attribute name
 PROJ_PARAMETER_CODES = {
     8805: "k0",
-    8801: "phi0",
-    8802: "lambda0",
     8806: "x0",
     8807: "y0",
     8813: "azimuth",
+    8821: "phi0",
+    8822: "lambda0",
     8823: "phi1",
     8824: "phi2",
 }
@@ -133,10 +133,10 @@ class EpsgElement(object):
 
     def __repr__(self):
         """
-        Return a string representation of the EpsgElement object.
+        Return a string representation of the `EpsgElement` object.
 
         Returns:
-            str: a string representation of the object in the format 
+            str: a string representation of the object in the format
                 `<ClassName Code: Name>`.
         """
         return f"<{self.__class__.__name__} {self.Code}: {self.Name}>"
@@ -151,7 +151,7 @@ class EpsgElement(object):
     def to_target(self, value: Union[int, float]) -> float:
         """
         Convert a value to the target unit, if applicable, ie: the
-        EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+        `EpsgElement` must contain a `Unit` class as attribute.
 
         Arguments:
             value (int|float): the value to be converted.
@@ -165,7 +165,7 @@ class EpsgElement(object):
     def from_target(self, value: Union[int, float]) -> float:
         """
         Convert a value from the target unit, if applicable, ie: the
-        EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+        `EpsgElement` must contain a `Unit` class as attribute.
 
         Arguments:
             value (int|float): the value to be converted.
