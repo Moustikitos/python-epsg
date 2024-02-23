@@ -1,6 +1,6 @@
 # Python `epsglide` package
 
-This package aims to perform simple requests to [`EPSG GeoRepository API`](https://apps.epsg.org/api/swagger/ui/index) and provides associated geodesic computation and map projection.
+This package aims to perform simple requests to [`EPSG GeoRepository API`](https://apps.epsg.org/api/swagger/ui/index) and provides associated geodesic computation and map projections.
 
 ## EPSG dataset requests and projection
 
@@ -14,6 +14,17 @@ This package aims to perform simple requests to [`EPSG GeoRepository API`](https
 <US survey foot:3.281[X=152400.305 Y=0.000] alt=0.000>
 >>> crs(crs(point))
 <lon=-087d18m0.00000s lat=+030d00m0.00000s alt=0.0>
+```
+
+## EPSG dataset conversion
+
+```python
+>>> osgb36 = epsglide.ProjectedCoordRefSystem(27700)
+>>> lla = osgb36(epsglide.Geographic(400000, -100000, 0))                       
+>>> osgb36.GeodeticCoordRefSystem.to_wgs84(lla)
+<lon=-002d00m0.00000s lat=+049d00m2.50812s alt=-529.126>
+>>> lla
+<lon=-002d00m0.00000s lat=+049d00m0.00000s alt=0.0>
 ```
 
 ## Great circle computation
