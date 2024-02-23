@@ -8,16 +8,22 @@ renderer:
   output_directory: .
   content_directory_name: docs
   type: mkdocs
+
   pages:
     - title: Home
       name: index
       source: README.md
     - title: EPSGlide
       contents:
-        - epsglide.ProjectedCoordRefSystem
+        - epsglide.ProjectedCoordRefSystem*
     - title: Geodesy
       contents:
         - epsglide.geodesy*
+    - title: Dataset
+      contents:
+        - epsglide.dataset.EpsgElement* 
+        - epsglide.dataset.Ellipsoid*
+        - epsglide.dataset.GeodeticCoordRefSystem*
 
   mkdocs_config:
     site_name: The EPSGlide Project

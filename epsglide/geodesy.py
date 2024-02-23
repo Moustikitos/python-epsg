@@ -104,7 +104,7 @@ class Geodetic(ctypes.Structure):
         return \
             f"<lon={_dms(self.longitude * _TODEG)} " +\
             f"lat={_dms(self.latitude * _TODEG)} " +\
-            f"alt={self.altitude}>"
+            f"alt={self.altitude:.3f}>"
 
     def maidenhead(self, level: int = 4) -> str:
         """

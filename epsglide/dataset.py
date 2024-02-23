@@ -47,19 +47,19 @@ PROJ_PARAMETER_CODES = {
 
 
 class DatasetConnexionError(Exception):
-    "to be raised when EPSG API is not available"
+    """Exception raised when EPSG API is not available."""
 
 
 class DatasetNotFound(Exception):
-    "to be raised when API call status code is not 200"
+    """Exception raised when API call status code is not 200."""
 
 
 class DatasetIdentificationError(Exception):
-    "to be raised when EpsgElement initialized with no info"
+    """Exception raised when EpsgElement initialized with no info."""
 
 
 class DatumInitializationError(Exception):
-    "to be raised when unmanageable datum parrameter occurs"
+    """Exception raised when unmanageable datum parameter occurs."""
 
 
 def _fetch(url: str) -> dict:
@@ -77,9 +77,25 @@ def _fetch(url: str) -> dict:
 # class EpsgElement(ctypes.Structure):
 class EpsgElement(object):
     """
+    Represents an EPSG dataset element.
+
+    Attributes:
+        _struct_ (ctypes.Structure): object representing the structure of the
+            equivalant C element.
+
+    Arguments:
+        code (int): the EPSG code of the element.
+        name (str): the name of the element.
+
+    Raises:
+        DatasetIdentificationError: if either EPSG code or name is not
+            provided.
+        NotImplementedError: if searching by keyword is attempted (not
+            implemented yet).
     """
 
     _struct_: src.ctypes.Structure = None
+    id = None
 
     def __init__(self, code: int = None, name: str = None) -> None:
         if not any([code, name]):
@@ -116,15 +132,48 @@ class EpsgElement(object):
         self.populate()
 
     def __repr__(self):
+        """
+        Return a string representation of the EpsgElement object.
+
+        Returns:
+            str: a string representation of the object in the format 
+                `<ClassName Code: Name>`.
+        """
         return f"<{self.__class__.__name__} {self.Code}: {self.Name}>"
 
     def populate(self):
+        """
+        Populate the EPSG dataset element. This method is meant to be
+        overridden by subclasses.
+        """
         pass
 
     def to_target(self, value: Union[int, float]) -> float:
+        """
+        Convert a value to the target unit, if applicable, ie: the
+        EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+
+        Arguments:
+            value (int|float): the value to be converted.
+
+        Returns:
+            float|None: the converted value, or None if no conversion is
+                possible.
+        """
         return value / self.Unit.ratio if hasattr(self, "Unit") else None
 
     def from_target(self, value: Union[int, float]) -> float:
+        """
+        Convert a value from the target unit, if applicable, ie: the
+        EpsgElement must contain a `dataset.Unit` EpsgElement as attribute.
+
+        Arguments:
+            value (int|float): the value to be converted.
+
+        Returns:
+            float|None: the converted value, or None if no conversion is
+                possible.
+        """
         return value * self.Unit.ratio if hasattr(self, "Unit") else None
 
     def __getattr__(self, attr: str) -> Union[object, None]:
@@ -172,8 +221,28 @@ class PrimeMeridian(EpsgElement):
 
 
 class Ellipsoid(EpsgElement):
+    """
+    Represents an ellipsoid model used in geodetic coordinate reference
+    systems.
+
+    Methods:
+        populate: Populate the `Ellipsoid` object with necessary data,
+            including parameters related to its shape and size.
+    """
 
     def populate(self):
+        """
+        Populate the `Ellipsoid` object with necessary data.
+
+        This method initializes the internal structure (`_struct_`) of the
+        `Ellipsoid` object with information about its semi-major axis,
+        semi-minor axis, flattening, eccentricity, and other related
+        parameters.
+
+        The initialization process depends on whether the ellipsoid's
+        inverse flattening is provided or calculated from its semi-major
+        and semi-minor axes.
+        """
         self._struct_ = src.Ellipsoid()
         self._struct_.a = self.SemiMajorAxis
         # initialize f, e and b values
@@ -192,8 +261,28 @@ class Ellipsoid(EpsgElement):
 
 
 class GeodeticCoordRefSystem(EpsgElement):
+    """
+    Represents a geodetic coordinate reference system.
+
+    Methods:
+        populate: Populate the GeodeticCoordRefSystem object with necessary
+            data, including datum and transformation parameters.
+    """
 
     def populate(self):
+        """
+        Populate the `GeodeticCoordRefSystem` object with necessary data.
+
+        This method initializes the internal structure (`_struct_`) of the
+        `GeodeticCoordRefSystem` object with information about the datum,
+        ellipsoid, prime meridian, and transformation parameters.
+
+        Raises:
+            DatasetNotFound: If no transformation is found for the given
+                coordinate reference system (CRS) code.
+            DatumInitializationError: If an unmanageable transformation
+                parameter is encountered during initialization.
+        """
         self._struct_ = src.Datum()
         self._struct_.ellipsoid = self.Datum.Ellipsoid._struct_
         self._struct_.prime = self.Datum.PrimeMeridian._struct_
