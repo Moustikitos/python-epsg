@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>EPSGlide - The EPSGlide Project</title>
+        <title>Dataset - The EPSGlide Project</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -35,14 +35,14 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li class="navitem active">
-                                <a href="./" class="nav-link">EPSGlide</a>
+                            <li class="navitem">
+                                <a href="../epsglide/" class="nav-link">EPSGlide</a>
                             </li>
                             <li class="navitem">
                                 <a href="../geodesy/" class="nav-link">Geodesy</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../dataset/" class="nav-link">Dataset</a>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Dataset</a>
                             </li>
                         </ul>
 
@@ -53,17 +53,17 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../geodesy/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../geodesy/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="https://github.com/Moustikitos/python-epsg/edit/master/docs/epsglide.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                                <a href="https://github.com/Moustikitos/python-epsg/edit/master/docs/dataset.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -83,9 +83,17 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#epsglide" class="nav-link">epsglide</a>
+            <li class="nav-item" data-level="1"><a href="#epsglidedataset" class="nav-link">epsglide.dataset</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-level="2"><a href="#projectedcoordrefsystem-objects" class="nav-link">ProjectedCoordRefSystem Objects</a>
+            <li class="nav-item" data-level="2"><a href="#epsgelement-objects" class="nav-link">EpsgElement Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#ellipsoid-objects" class="nav-link">Ellipsoid Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#geodeticcoordrefsystem-objects" class="nav-link">GeodeticCoordRefSystem Objects</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -96,45 +104,124 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<p><a id="epsglide"></a></p>
-<h1 id="epsglide">epsglide</h1>
-<p>This package aims to perform simple requests to <a href="https://apps.epsg.org/api/swagger/ui/index"><code>EPSG GeoRepository API</code></a> and provides associated geodesic
-computation and map projection.</p>
-<p><a id="epsglide.ProjectedCoordRefSystem"></a></p>
-<h2 id="projectedcoordrefsystem-objects">ProjectedCoordRefSystem Objects</h2>
-<pre><code class="language-python">class ProjectedCoordRefSystem(dataset.EpsgElement)
+<p><a id="epsglide.dataset"></a></p>
+<h1 id="epsglidedataset">epsglide.dataset</h1>
+<p><a id="epsglide.dataset.EpsgElement"></a></p>
+<h2 id="epsgelement-objects">EpsgElement Objects</h2>
+<pre><code class="language-python">class EpsgElement(object)
 </code></pre>
-<p>Coordinate reference system object allowing projection of geodetic
-coordinates to flat map (geographic coordinates).</p>
-<pre><code class="language-python">&gt;&gt;&gt; import epsglide
-&gt;&gt;&gt; osgb36 = epsglide.ProjectedCoordRefSystem(27700)
-&gt;&gt;&gt; london = epsglide.Geodetic(-0.127005, 51.518602, 0.)  # use degrees
-&gt;&gt;&gt; osgb36(london)
-&lt;metre:1.000[X=529939.106 Y=181680.962] alt=0.000&gt;
-&gt;&gt;&gt; osgb36.Projection
-{'Code': 19916, 'Name': 'British National Grid', 'href': 'https://apps.epsg.org/api/v1/Conversion/19916'}
-</code></pre>
+<p>Represents an EPSG dataset element.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>GeodeticCoordRefSystem</code> <em>dataset.GeodeticCoordRefSystem</em> - geodetic
-  reference system.</li>
-<li><code>Conversion</code> <em>dataset.Conversion</em> - projection method and parameters.</li>
-<li><code>CoordOperationMethod</code> <em>dataset.CoordOperationMethod</em> - projection
-  description.</li>
-<li><code>CoordSystem</code> <em>dataset.CoordSystem</em> - 2D coordinate system and units.</li>
-<li><code>parameters</code> <em>list</em> - list of <code>dataset.CoordOperationParameter</code>.</li>
+<li><code>_struct_</code> <em>ctypes.Structure</em> - object representing the structure of the
+  equivalant C element.</li>
 </ul>
-<p><a id="epsglide.ProjectedCoordRefSystem.__call__"></a></p>
-<h4 id="__call__">__call__</h4>
-<pre><code class="language-python">def __call__(
-    element: typing.Union[Geodetic, Geographic]
-) -&gt; typing.Union[Geodetic, Geographic]
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>code</code> <em>int</em> - the EPSG code of the element.</li>
+<li><code>name</code> <em>str</em> - the name of the element.</li>
+</ul>
+<p><strong>Raises</strong>:</p>
+<ul>
+<li><code>DatasetIdentificationError</code> - if either EPSG code or name is not
+  provided.</li>
+<li><code>NotImplementedError</code> - if searching by keyword is attempted (not
+  implemented yet).</li>
+</ul>
+<p><a id="epsglide.dataset.EpsgElement.__repr__"></a></p>
+<h4 id="__repr__">__repr__</h4>
+<pre><code class="language-python">def __repr__()
 </code></pre>
-<p><a id="epsglide.ProjectedCoordRefSystem.transform"></a></p>
-<h4 id="transform">transform</h4>
-<pre><code class="language-python">def transform(element: typing.Union[Geodetic, Geographic],
-              dest_crs) -&gt; Geographic
-</code></pre></div>
+<p>Return a string representation of the <code>EpsgElement</code> object.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - a string representation of the object in the format
+  <code>&lt;ClassName Code: Name&gt;</code>.</li>
+</ul>
+<p><a id="epsglide.dataset.EpsgElement.populate"></a></p>
+<h4 id="populate">populate</h4>
+<pre><code class="language-python">def populate()
+</code></pre>
+<p>Populate the EPSG dataset element. This method is meant to be
+overridden by subclasses.</p>
+<p><a id="epsglide.dataset.EpsgElement.to_target"></a></p>
+<h4 id="to_target">to_target</h4>
+<pre><code class="language-python">def to_target(value: Union[int, float]) -&gt; float
+</code></pre>
+<p>Convert a value to the target unit, if applicable, ie: the
+<code>EpsgElement</code> must contain a <code>Unit</code> class as attribute.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> <em>int|float</em> - the value to be converted.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float|None</code> - the converted value, or None if no conversion is
+  possible.</li>
+</ul>
+<p><a id="epsglide.dataset.EpsgElement.from_target"></a></p>
+<h4 id="from_target">from_target</h4>
+<pre><code class="language-python">def from_target(value: Union[int, float]) -&gt; float
+</code></pre>
+<p>Convert a value from the target unit, if applicable, ie: the
+<code>EpsgElement</code> must contain a <code>Unit</code> class as attribute.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> <em>int|float</em> - the value to be converted.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float|None</code> - the converted value, or None if no conversion is
+  possible.</li>
+</ul>
+<p><a id="epsglide.dataset.Ellipsoid"></a></p>
+<h2 id="ellipsoid-objects">Ellipsoid Objects</h2>
+<pre><code class="language-python">class Ellipsoid(EpsgElement)
+</code></pre>
+<p>Represents an ellipsoid model used in geodetic coordinate reference
+systems.</p>
+<p><strong>Methods</strong>:</p>
+<ul>
+<li><code>populate</code> - Populate the <code>Ellipsoid</code> object with necessary data,
+  including parameters related to its shape and size.</li>
+</ul>
+<p><a id="epsglide.dataset.Ellipsoid.populate"></a></p>
+<h4 id="populate_1">populate</h4>
+<pre><code class="language-python">def populate()
+</code></pre>
+<p>Populate the <code>Ellipsoid</code> object with necessary data.</p>
+<p>This method initializes the internal structure (<code>_struct_</code>) of the
+<code>Ellipsoid</code> object with information about its semi-major axis,
+semi-minor axis, flattening, eccentricity, and other related
+parameters.</p>
+<p>The initialization process depends on whether the ellipsoid&rsquo;s
+inverse flattening is provided or calculated from its semi-major
+and semi-minor axes.</p>
+<p><a id="epsglide.dataset.GeodeticCoordRefSystem"></a></p>
+<h2 id="geodeticcoordrefsystem-objects">GeodeticCoordRefSystem Objects</h2>
+<pre><code class="language-python">class GeodeticCoordRefSystem(EpsgElement)
+</code></pre>
+<p>Represents a geodetic coordinate reference system.</p>
+<p><strong>Methods</strong>:</p>
+<ul>
+<li><code>populate</code> - Populate the GeodeticCoordRefSystem object with necessary
+  data, including datum and transformation parameters.</li>
+</ul>
+<p><a id="epsglide.dataset.GeodeticCoordRefSystem.populate"></a></p>
+<h4 id="populate_2">populate</h4>
+<pre><code class="language-python">def populate()
+</code></pre>
+<p>Populate the <code>GeodeticCoordRefSystem</code> object with necessary data.</p>
+<p>This method initializes the internal structure (<code>_struct_</code>) of the
+<code>GeodeticCoordRefSystem</code> object with information about the datum,
+ellipsoid, prime meridian, and transformation parameters.</p>
+<p><strong>Raises</strong>:</p>
+<ul>
+<li><code>DatasetNotFound</code> - If no transformation is found for the given
+  coordinate reference system (CRS) code.</li>
+<li><code>DatumInitializationError</code> - If an unmanageable transformation
+  parameter is encountered during initialization.</li>
+</ul></div>
             </div>
         </div>
 
