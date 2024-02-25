@@ -141,6 +141,87 @@ class Vincenty_dest(ctypes.Structure):
             f"end bearing={math.degrees(self.destination_bearing):.1f}°>"
 
 
+def distance(
+    obj: dataset.Ellipsoid, start: Geodetic, stop: Geodetic
+) -> Vincenty_dist:
+    """
+    Calculate the distance between two points on the ellipsoid surface.
+
+    Args:
+        obj (dataset.Ellipsoid): The ellipsoid object representing the shape of
+            the Earth.
+        start (Geodetic): The starting point.
+        stop (Geodetic): The destination point.
+
+    Returns:
+        Vincenty_dist: The distance between the two points.
+    """
+    return geoid.distance(obj._struct_, start, stop)
+
+
+def destination(
+    obj: dataset.Ellipsoid, start: Geodetic, dist: Vincenty_dist
+) -> Vincenty_dest:
+    """
+    Calculate the destination point given start point, initial bearing, and
+    distance.
+
+    Args:
+        obj (dataset.Ellipsoid): The ellipsoid object representing the shape of
+            the Earth.
+        start (Geodetic): The starting point.
+        dist (Vincenty_dist): The distance to travel.
+
+    Returns:
+        Vincenty_dest: The destination point.
+    """
+    return geoid.destination(obj._struct_, start, dist)
+
+
+def to_crs(
+    obj: dataset.GeodeticCoordRefSystem, crs: dataset.GeodeticCoordRefSystem,
+    lla: Geodetic
+) -> Geodetic:
+    """
+    Convert coordinates from one geodetic coordinate reference system to
+    another.
+
+    Args:
+        obj (dataset.GeodeticCoordRefSystem): The source coordinate reference
+            system.
+        crs (dataset.GeodeticCoordRefSystem): The target coordinate reference
+            system.
+        lla (Geodetic): The coordinates to convert.
+
+    Returns:
+        Geodetic: The converted coordinates.
+    """
+    return geoid.lla_dat2dat(obj._struct_, crs._struct_, lla)
+
+
+def to_wgs84(
+    obj: dataset.GeodeticCoordRefSystem, lla: Geodetic
+) -> Geodetic:
+    """
+    Convert coordinates from a geodetic coordinate reference system to WGS84.
+
+    Args:
+        obj (dataset.GeodeticCoordRefSystem): The source coordinate reference
+            system.
+        lla (Geodetic): The coordinates to convert.
+
+    Returns:
+        Geodetic: The converted coordinates in WGS84.
+    """
+    return geoid.lla_dat2dat(obj._struct_, WGS84._struct_, lla)
+
+
+dataset.GeodeticCoordRefSystem.to_wgs84 = to_wgs84
+dataset.GeodeticCoordRefSystem.to_crs = to_crs
+dataset.Ellipsoid.distance = distance
+dataset.Ellipsoid.destination = destination
+
+
 class ProjectedCoordRefSystem(dataset.EpsgElement):
     """
     Coordinate reference system object allowing projection of geodetic
@@ -290,15 +371,3 @@ geoid.lla_dat2dat.argtypes = [
     ctypes.POINTER(Geodetic)
 ]
 geoid.lla_dat2dat.restype = Geodetic
-
-dataset.Ellipsoid.distance = lambda obj, start, stop: \
-    geoid.distance(obj._struct_, start, stop)
-
-dataset.Ellipsoid.destination = lambda obj, start, dist: \
-    geoid.destination(obj._struct_, start, dist)
-
-dataset.GeodeticCoordRefSystem.to_wgs84 = lambda obj, lla: \
-    geoid.lla_dat2dat(obj._struct_, WGS84._struct_, lla)
-
-dataset.GeodeticCoordRefSystem.to_crs = lambda obj, dst, lla: \
-    geoid.lla_dat2dat(obj._struct_, dst._struct_, lla)
