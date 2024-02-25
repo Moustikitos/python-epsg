@@ -44,6 +44,9 @@
                             <li class="navitem">
                                 <a href="dataset/" class="nav-link">Dataset</a>
                             </li>
+                            <li class="navitem">
+                                <a href="c-code/" class="nav-link">C code</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ml-auto">
@@ -115,7 +118,7 @@
 &gt;&gt;&gt; crs = epsglide.ProjectedCoordRefSystem(26730)
 &gt;&gt;&gt; crs
 &lt;ProjectedCoordRefSystem 26730: NAD27 / Alabama West&gt;
-&gt;&gt;&gt; point = epsglide.Geodesic(math.degrees(crs.lambda0), math.degrees(crs.phi0))
+&gt;&gt;&gt; point = epsglide.Geodetic(math.degrees(crs.lambda0), math.degrees(crs.phi0))
 &gt;&gt;&gt; crs(point)
 &lt;US survey foot:3.281[X=152400.305 Y=0.000] alt=0.000&gt;
 &gt;&gt;&gt; crs(crs(point))
@@ -131,8 +134,8 @@
 </code></pre>
 <h2 id="great-circle-computation">Great circle computation</h2>
 <pre><code class="language-python">&gt;&gt;&gt; wgs84 = epsglide.dataset.Ellipsoid(7030)
-&gt;&gt;&gt; dublin = epsglide.Geodesic(-6.272877, 53.344606, 105.)
-&gt;&gt;&gt; london = epsglide.Geodesic(-0.127005, 51.518602, 0.)
+&gt;&gt;&gt; dublin = epsglide.Geodetic(-6.272877, 53.344606, 105.)
+&gt;&gt;&gt; london = epsglide.Geodetic(-0.127005, 51.518602, 0.)
 &gt;&gt;&gt; dist = wgs84.distance(dublin, london) 
 &gt;&gt;&gt; dist
 &lt;464.572km initial bearing=113.5° final bearing118.3°&gt;
@@ -228,5 +231,5 @@
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-02-23 20:17:03.329153+00:00
+Build Date UTC : 2024-02-25 10:42:06.654326+00:00
 -->

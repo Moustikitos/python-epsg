@@ -44,6 +44,9 @@
                             <li class="navitem active">
                                 <a href="./" class="nav-link">Dataset</a>
                             </li>
+                            <li class="navitem">
+                                <a href="../c-code/" class="nav-link">C code</a>
+                            </li>
                         </ul>
 
                     <ul class="nav navbar-nav ml-auto">
@@ -58,7 +61,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
+                                <a rel="next" href="../c-code/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -85,7 +88,31 @@
             
             <li class="nav-item" data-level="1"><a href="#epsglidedataset" class="nav-link">epsglide.dataset</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#datasetconnexionerror-objects" class="nav-link">DatasetConnexionError Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#datasetnotfound-objects" class="nav-link">DatasetNotFound Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#datasetidentificationerror-objects" class="nav-link">DatasetIdentificationError Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#datuminitializationerror-objects" class="nav-link">DatumInitializationError Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-level="2"><a href="#epsgelement-objects" class="nav-link">EpsgElement Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#unit-objects" class="nav-link">Unit Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#primemeridian-objects" class="nav-link">PrimeMeridian Objects</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -106,6 +133,31 @@
 
 <p><a id="epsglide.dataset"></a></p>
 <h1 id="epsglidedataset">epsglide.dataset</h1>
+<p><a id="epsglide.dataset.DATA"></a></p>
+<h4 id="data">DATA</h4>
+<p>Path where json dataset are stored. On each EPSG dataset request, json data
+are stored on this local path to allow introspection when needed and faster
+execution.</p>
+<p><a id="epsglide.dataset.DatasetConnexionError"></a></p>
+<h2 id="datasetconnexionerror-objects">DatasetConnexionError Objects</h2>
+<pre><code class="language-python">class DatasetConnexionError(Exception)
+</code></pre>
+<p>Exception raised when EPSG API is not available.</p>
+<p><a id="epsglide.dataset.DatasetNotFound"></a></p>
+<h2 id="datasetnotfound-objects">DatasetNotFound Objects</h2>
+<pre><code class="language-python">class DatasetNotFound(Exception)
+</code></pre>
+<p>Exception raised when API call status code is not 200.</p>
+<p><a id="epsglide.dataset.DatasetIdentificationError"></a></p>
+<h2 id="datasetidentificationerror-objects">DatasetIdentificationError Objects</h2>
+<pre><code class="language-python">class DatasetIdentificationError(Exception)
+</code></pre>
+<p>Exception raised when EpsgElement initialized with no info.</p>
+<p><a id="epsglide.dataset.DatumInitializationError"></a></p>
+<h2 id="datuminitializationerror-objects">DatumInitializationError Objects</h2>
+<pre><code class="language-python">class DatumInitializationError(Exception)
+</code></pre>
+<p>Exception raised when unmanageable datum parameter occurs.</p>
 <p><a id="epsglide.dataset.EpsgElement"></a></p>
 <h2 id="epsgelement-objects">EpsgElement Objects</h2>
 <pre><code class="language-python">class EpsgElement(object)
@@ -144,27 +196,26 @@
 </code></pre>
 <p>Populate the EPSG dataset element. This method is meant to be
 overridden by subclasses.</p>
-<p><a id="epsglide.dataset.EpsgElement.to_target"></a></p>
-<h4 id="to_target">to_target</h4>
-<pre><code class="language-python">def to_target(value: Union[int, float]) -&gt; float
+<p><a id="epsglide.dataset.Unit"></a></p>
+<h2 id="unit-objects">Unit Objects</h2>
+<pre><code class="language-python">class Unit(EpsgElement)
 </code></pre>
-<p>Convert a value to the target unit, if applicable, ie: the
-<code>EpsgElement</code> must contain a <code>Unit</code> class as attribute.</p>
-<p><strong>Arguments</strong>:</p>
+<p>Represents a unit in EPSG dataset.</p>
+<p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>value</code> <em>int|float</em> - the value to be converted.</li>
+<li><code>ratio</code> <em>float</em> - The ratio value of the unit.</li>
 </ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>float|None</code> - the converted value, or None if no conversion is
-  possible.</li>
-</ul>
-<p><a id="epsglide.dataset.EpsgElement.from_target"></a></p>
+<p><a id="epsglide.dataset.Unit.from_target"></a></p>
 <h4 id="from_target">from_target</h4>
 <pre><code class="language-python">def from_target(value: Union[int, float]) -&gt; float
 </code></pre>
-<p>Convert a value from the target unit, if applicable, ie: the
-<code>EpsgElement</code> must contain a <code>Unit</code> class as attribute.</p>
+<p>Convert a value to the dataset specific unit.</p>
+<pre><code class="language-python">&gt;&gt;&gt; u = epsglide.dataset.Unit(9003)
+&gt;&gt;&gt; u
+&lt;Unit 9003: US survey foot&gt;
+&gt;&gt;&gt; u.from_target(1) # convert one metre into US survey foot
+3.2808333333333333
+</code></pre>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>value</code> <em>int|float</em> - the value to be converted.</li>
@@ -173,6 +224,35 @@ overridden by subclasses.</p>
 <ul>
 <li><code>float|None</code> - the converted value, or None if no conversion is
   possible.</li>
+</ul>
+<p><a id="epsglide.dataset.Unit.to_target"></a></p>
+<h4 id="to_target">to_target</h4>
+<pre><code class="language-python">def to_target(value: Union[int, float]) -&gt; float
+</code></pre>
+<p>Convert a value to computation specific units.</p>
+<pre><code class="language-python">&gt;&gt;&gt; u = epsglide.dataset.Unit(9002)
+&gt;&gt;&gt; u
+&lt;Unit 9002: foot&gt;
+&gt;&gt;&gt; u.to_target(1) # convert one international feet into meters
+0.3048
+</code></pre>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> <em>int|float</em> - the value to be converted.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float|None</code> - the converted value, or None if no conversion is
+  possible.</li>
+</ul>
+<p><a id="epsglide.dataset.PrimeMeridian"></a></p>
+<h2 id="primemeridian-objects">PrimeMeridian Objects</h2>
+<pre><code class="language-python">class PrimeMeridian(EpsgElement)
+</code></pre>
+<p>Represents a prime meridian in EPSG dataset.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>longitude</code> <em>float</em> - The longitude value of the prime meridian.</li>
 </ul>
 <p><a id="epsglide.dataset.Ellipsoid"></a></p>
 <h2 id="ellipsoid-objects">Ellipsoid Objects</h2>

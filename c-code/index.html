@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>EPSGlide - The EPSGlide Project</title>
+        <title>C code - The EPSGlide Project</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -35,8 +35,8 @@
                             <li class="navitem">
                                 <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li class="navitem active">
-                                <a href="./" class="nav-link">EPSGlide</a>
+                            <li class="navitem">
+                                <a href="../epsglide/" class="nav-link">EPSGlide</a>
                             </li>
                             <li class="navitem">
                                 <a href="../geodesy/" class="nav-link">Geodesy</a>
@@ -44,8 +44,8 @@
                             <li class="navitem">
                                 <a href="../dataset/" class="nav-link">Dataset</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../c-code/" class="nav-link">C code</a>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">C code</a>
                             </li>
                         </ul>
 
@@ -56,17 +56,17 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../dataset/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../geodesy/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="https://github.com/Moustikitos/python-epsg/edit/master/docs/epsglide.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                                <a href="https://github.com/Moustikitos/python-epsg/edit/master/docs/c-code.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -86,9 +86,25 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#epsglide" class="nav-link">epsglide</a>
+            <li class="nav-item" data-level="1"><a href="#epsglidesrc" class="nav-link">epsglide.src</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-level="2"><a href="#projectedcoordrefsystem-objects" class="nav-link">ProjectedCoordRefSystem Objects</a>
+            <li class="nav-item" data-level="2"><a href="#unit-objects" class="nav-link">Unit Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#prime-objects" class="nav-link">Prime Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#ellipsoid-objects" class="nav-link">Ellipsoid Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#datum-objects" class="nav-link">Datum Objects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#crs-objects" class="nav-link">Crs Objects</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -99,114 +115,106 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<p><a id="epsglide"></a></p>
-<h1 id="epsglide">epsglide</h1>
-<p>This package aims to perform simple requests to <a href="https://apps.epsg.org/api/swagger/ui/index"><code>EPSG GeoRepository API</code></a> and provides associated geodesic
-computation and map projection.</p>
-<p><a id="epsglide.distance"></a></p>
-<h4 id="distance">distance</h4>
-<pre><code class="language-python">def distance(obj: dataset.Ellipsoid, start: Geodetic,
-             stop: Geodetic) -&gt; Vincenty_dist
+<p><a id="epsglide.src"></a></p>
+<h1 id="epsglidesrc">epsglide.src</h1>
+<p><a id="epsglide.src.Unit"></a></p>
+<h2 id="unit-objects">Unit Objects</h2>
+<pre><code class="language-python">class Unit(ctypes.Structure)
 </code></pre>
-<p>Calculate the distance between two points on the ellipsoid surface.</p>
-<p><strong>Arguments</strong>:</p>
-<ul>
-<li><code>obj</code> <em>dataset.Ellipsoid</em> - The ellipsoid object representing the shape of
-  the Earth.</li>
-<li><code>start</code> <em>Geodetic</em> - The starting point.</li>
-<li><code>stop</code> <em>Geodetic</em> - The destination point.</li>
-</ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>Vincenty_dist</code> - The distance between the two points.</li>
-</ul>
-<p><a id="epsglide.destination"></a></p>
-<h4 id="destination">destination</h4>
-<pre><code class="language-python">def destination(obj: dataset.Ellipsoid, start: Geodetic,
-                dist: Vincenty_dist) -&gt; Vincenty_dest
-</code></pre>
-<p>Calculate the destination point given start point, initial bearing, and
-distance.</p>
-<p><strong>Arguments</strong>:</p>
-<ul>
-<li><code>obj</code> <em>dataset.Ellipsoid</em> - The ellipsoid object representing the shape of
-  the Earth.</li>
-<li><code>start</code> <em>Geodetic</em> - The starting point.</li>
-<li><code>dist</code> <em>Vincenty_dist</em> - The distance to travel.</li>
-</ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>Vincenty_dest</code> - The destination point.</li>
-</ul>
-<p><a id="epsglide.to_crs"></a></p>
-<h4 id="to_crs">to_crs</h4>
-<pre><code class="language-python">def to_crs(obj: dataset.GeodeticCoordRefSystem,
-           crs: dataset.GeodeticCoordRefSystem, lla: Geodetic) -&gt; Geodetic
-</code></pre>
-<p>Convert coordinates from one geodetic coordinate reference system to
-another.</p>
-<p><strong>Arguments</strong>:</p>
-<ul>
-<li><code>obj</code> <em>dataset.GeodeticCoordRefSystem</em> - The source coordinate reference
-  system.</li>
-<li><code>crs</code> <em>dataset.GeodeticCoordRefSystem</em> - The target coordinate reference
-  system.</li>
-<li><code>lla</code> <em>Geodetic</em> - The coordinates to convert.</li>
-</ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>Geodetic</code> - The converted coordinates.</li>
-</ul>
-<p><a id="epsglide.to_wgs84"></a></p>
-<h4 id="to_wgs84">to_wgs84</h4>
-<pre><code class="language-python">def to_wgs84(obj: dataset.GeodeticCoordRefSystem, lla: Geodetic) -&gt; Geodetic
-</code></pre>
-<p>Convert coordinates from a geodetic coordinate reference system to WGS84.</p>
-<p><strong>Arguments</strong>:</p>
-<ul>
-<li><code>obj</code> <em>dataset.GeodeticCoordRefSystem</em> - The source coordinate reference
-  system.</li>
-<li><code>lla</code> <em>Geodetic</em> - The coordinates to convert.</li>
-</ul>
-<p><strong>Returns</strong>:</p>
-<ul>
-<li><code>Geodetic</code> - The converted coordinates in WGS84.</li>
-</ul>
-<p><a id="epsglide.ProjectedCoordRefSystem"></a></p>
-<h2 id="projectedcoordrefsystem-objects">ProjectedCoordRefSystem Objects</h2>
-<pre><code class="language-python">class ProjectedCoordRefSystem(dataset.EpsgElement)
-</code></pre>
-<p>Coordinate reference system object allowing projection of geodetic
-coordinates to flat map (geographic coordinates).</p>
-<pre><code class="language-python">&gt;&gt;&gt; import epsglide
-&gt;&gt;&gt; osgb36 = epsglide.ProjectedCoordRefSystem(27700)
-&gt;&gt;&gt; london = epsglide.Geodetic(-0.127005, 51.518602, 0.)  # use degrees
-&gt;&gt;&gt; osgb36(london)
-&lt;metre:1.000[X=529939.106 Y=181680.962] alt=0.000&gt;
-&gt;&gt;&gt; osgb36.Projection
-{'Code': 19916, 'Name': 'British National Grid', 'href': 'https://apps.epsg.org/api/v1/Conversion/19916'}
-</code></pre>
+<p>Represents a <code>Unit</code> structure in C code.</p>
 <p><strong>Attributes</strong>:</p>
 <ul>
-<li><code>GeodeticCoordRefSystem</code> <em>dataset.GeodeticCoordRefSystem</em> - geodetic
-  reference system.</li>
-<li><code>Conversion</code> <em>dataset.Conversion</em> - projection method and parameters.</li>
-<li><code>CoordOperationMethod</code> <em>dataset.CoordOperationMethod</em> - projection
-  description.</li>
-<li><code>CoordSystem</code> <em>dataset.CoordSystem</em> - 2D coordinate system and units.</li>
-<li><code>parameters</code> <em>list</em> - list of <code>dataset.CoordOperationParameter</code>.</li>
+<li><code>ratio</code> <em>float</em> - The ratio value of the unit.</li>
 </ul>
-<p><a id="epsglide.ProjectedCoordRefSystem.__call__"></a></p>
-<h4 id="__call__">__call__</h4>
-<pre><code class="language-python">def __call__(
-    element: typing.Union[Geodetic, Geographic]
-) -&gt; typing.Union[Geodetic, Geographic]
+<p><a id="epsglide.src.Prime"></a></p>
+<h2 id="prime-objects">Prime Objects</h2>
+<pre><code class="language-python">class Prime(ctypes.Structure)
 </code></pre>
-<p><a id="epsglide.ProjectedCoordRefSystem.transform"></a></p>
-<h4 id="transform">transform</h4>
-<pre><code class="language-python">def transform(element: typing.Union[Geodetic, Geographic],
-              dest_crs) -&gt; Geographic
-</code></pre></div>
+<p>Represents a <code>Prime</code> structure in C code.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>longitude</code> <em>float</em> - The longitude value of the prime meridian.</li>
+</ul>
+<p><a id="epsglide.src.Ellipsoid"></a></p>
+<h2 id="ellipsoid-objects">Ellipsoid Objects</h2>
+<pre><code class="language-python">class Ellipsoid(ctypes.Structure)
+</code></pre>
+<p>Represents an <code>Ellipsoid</code> structure in C code.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>a</code> <em>float</em> - The semi-major axis of the ellipsoid.</li>
+<li><code>b</code> <em>float</em> - The semi-minor axis of the ellipsoid.</li>
+<li><code>e</code> <em>float</em> - The eccentricity of the ellipsoid.</li>
+<li><code>f</code> <em>float</em> - The flattening of the ellipsoid.</li>
+</ul>
+<p><a id="epsglide.src.Datum"></a></p>
+<h2 id="datum-objects">Datum Objects</h2>
+<pre><code class="language-python">class Datum(ctypes.Structure)
+</code></pre>
+<p>Represents a <code>Datum</code> structure in C code.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>ellipsoid</code> <em>Ellipsoid</em> - The ellipsoid associated with the datum.</li>
+<li><code>prime</code> <em>Prime</em> - The prime meridian associated with the datum.</li>
+<li><code>ds</code> <em>float</em> - The scale difference parameter.</li>
+<li><code>dx</code> <em>float</em> - The X translation parameter.</li>
+<li><code>dy</code> <em>float</em> - The Y translation parameter.</li>
+<li><code>dz</code> <em>float</em> - The Z translation parameter.</li>
+<li><code>rx</code> <em>float</em> - The X rotation parameter.</li>
+<li><code>ry</code> <em>float</em> - The Y rotation parameter.</li>
+<li><code>rz</code> <em>float</em> - The Z rotation parameter.</li>
+</ul>
+<p><a id="epsglide.src.Crs"></a></p>
+<h2 id="crs-objects">Crs Objects</h2>
+<pre><code class="language-python">class Crs(ctypes.Structure)
+</code></pre>
+<p>Represents a <code>Crs</code> structure in C code.</p>
+<p><strong>Attributes</strong>:</p>
+<ul>
+<li><code>datum</code> <em>Datum</em> - The datum associated with the coordinate reference
+  system.</li>
+<li><code>lambda0</code> <em>float</em> - The longitude of the point from which the values of
+  both the geographical coordinates on the ellipsoid and the grid
+  coordinates on the projection are deemed to increment or decrement
+  for computational purposes. Alternatively it may be considered as
+  the longitude of the point which in the absence of application of
+  false coordinates has grid coordinates of (0,0). Sometimes known
+  as &ldquo;central meridian&rdquo; (CM).</li>
+<li><code>phi0</code> <em>float</em> - The latitude of the point from which the values of both
+  the geographical coordinates on the ellipsoid and the grid
+  coordinates on the projection are deemed to increment or decrement
+  for computational purposes. Alternatively it may be considered as
+  the latitude of the point which in the absence of application of
+  false coordinates has grid coordinates of (0,0).</li>
+<li><code>phi1</code> <em>float</em> - for a conic projection with two standard parallels, this
+  is the latitude of one of the parallels of intersection of the cone
+  with the ellipsoid. It is normally but not necessarily that nearest
+  to the pole. Scale is true along this parallel.</li>
+<li><code>phi2</code> <em>float</em> - for a conic projection with two standard parallels, this
+  is the latitude of one of the parallels at which the cone
+  intersects with the ellipsoid. It is normally but not necessarily
+  that nearest to the equator. Scale is true along this parallel.</li>
+<li><code>k0</code> <em>float</em> - the factor by which the map grid is reduced or enlarged
+  during the projection process, defined by its value at the natural
+  origin.</li>
+<li><code>x0</code> <em>float</em> - since the natural origin may be at or near the centre of
+  the projection and under normal coordinate circumstances would thus
+  give rise to negative coordinates over parts of the mapped area,
+  this origin is usually given false coordinates which are large
+  enough to avoid this inconvenience. The False Easting, FE, is the
+  value assigned to the abscissa (east or west) axis of the
+  projection grid at the natural origin.</li>
+<li><code>y0</code> <em>float</em> - since the natural origin may be at or near the centre of
+  the projection and under normal coordinate circumstances would thus
+  give rise to negative coordinates over parts of the mapped area,
+  this origin is usually given false coordinates which are large
+  enough to avoid this inconvenience. The False Northing, FN, is the
+  value assigned to the ordinate (north or south) axis of the
+  projection grid at the natural origin.</li>
+<li><code>azimut</code> <em>float</em> - the azimuthal direction (north zero, east of north
+  being positive) of the great circle which is the centre line of an
+  oblique projection. The azimuth is given at the projection centre.</li>
+</ul></div>
             </div>
         </div>
 
