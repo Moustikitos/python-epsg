@@ -80,12 +80,19 @@ class Crs(ctypes.Structure):
     Attributes:
         datum (Datum): The datum associated with the coordinate reference
             system.
-        lambda0 (float): the longitude of the point which is not the natural
-            origin and at which grid coordinate values false easting and false
-            northing are defined.
-        phi0 (float): the latitude of the point which is not the natural
-            origin and at which grid coordinate values false easting and false
-            northing are defined.
+        lambda0 (float): The longitude of the point from which the values of
+            both the geographical coordinates on the ellipsoid and the grid
+            coordinates on the projection are deemed to increment or decrement
+            for computational purposes. Alternatively it may be considered as
+            the longitude of the point which in the absence of application of
+            false coordinates has grid coordinates of (0,0). Sometimes known
+            as "central meridian" (CM).
+        phi0 (float): The latitude of the point from which the values of both
+            the geographical coordinates on the ellipsoid and the grid
+            coordinates on the projection are deemed to increment or decrement
+            for computational purposes. Alternatively it may be considered as
+            the latitude of the point which in the absence of application of
+            false coordinates has grid coordinates of (0,0).
         phi1 (float): for a conic projection with two standard parallels, this
             is the latitude of one of the parallels of intersection of the cone
             with the ellipsoid. It is normally but not necessarily that nearest

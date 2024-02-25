@@ -4,6 +4,7 @@ import os
 import sys
 import math
 import json
+import webbrowser
 
 import urllib.request
 import urllib.error
@@ -11,6 +12,9 @@ import urllib.error
 from typing import Union
 from epsglide import src
 
+#: Path where json dataset are stored. On each EPSG dataset request, json data
+#: are stored on this local path to allow introspection when needed and faster
+#: execution.
 DATA = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".dataset")
 
 # alias table to translate https://apps.epsg.org/api/v1/Transformation
@@ -35,14 +39,9 @@ PROJ_METHOD_CODES = {
 # alias table to translate https://apps.epsg.org/api/v1/Conversion
 # parameter code to epsg.EpsgElement attribute name
 PROJ_PARAMETER_CODES = {
-    8805: "k0",
-    8806: "x0",
-    8807: "y0",
-    8813: "azimuth",
-    8821: "phi0",
-    8822: "lambda0",
-    8823: "phi1",
-    8824: "phi2",
+    8801: "phi0", 8802: "lambda0",
+    8805: "k0", 8806: "x0", 8807: "y0",
+    8813: "azimuth", 8823: "phi1", 8824: "phi2",
 }
 
 
@@ -95,7 +94,7 @@ class EpsgElement(object):
     """
 
     _struct_: src.ctypes.Structure = None
-    id = None
+    id: int = None
 
     def __init__(self, code: int = None, name: str = None) -> None:
         if not any([code, name]):
@@ -112,7 +111,7 @@ class EpsgElement(object):
         else:
             os.makedirs(os.path.dirname(path), exist_ok=True)
             self.__data = _fetch(
-                "https://apps.epsg.org/api/v1/" +
+                "https://apps.epsg.org/api/v1/"
                 f"{self.__class__.__name__}/{code}/"
             )
             with open(path, "w") as out:
@@ -141,41 +140,6 @@ class EpsgElement(object):
         """
         return f"<{self.__class__.__name__} {self.Code}: {self.Name}>"
 
-    def populate(self):
-        """
-        Populate the EPSG dataset element. This method is meant to be
-        overridden by subclasses.
-        """
-        pass
-
-    def to_target(self, value: Union[int, float]) -> float:
-        """
-        Convert a value to the target unit, if applicable, ie: the
-        `EpsgElement` must contain a `Unit` class as attribute.
-
-        Arguments:
-            value (int|float): the value to be converted.
-
-        Returns:
-            float|None: the converted value, or None if no conversion is
-                possible.
-        """
-        return value / self.Unit.ratio if hasattr(self, "Unit") else None
-
-    def from_target(self, value: Union[int, float]) -> float:
-        """
-        Convert a value from the target unit, if applicable, ie: the
-        `EpsgElement` must contain a `Unit` class as attribute.
-
-        Arguments:
-            value (int|float): the value to be converted.
-
-        Returns:
-            float|None: the converted value, or None if no conversion is
-                possible.
-        """
-        return value * self.Unit.ratio if hasattr(self, "Unit") else None
-
     def __getattr__(self, attr: str) -> Union[object, None]:
         try:
             return getattr(object.__getattribute__(self, "_struct_"), attr)
@@ -185,35 +149,84 @@ class EpsgElement(object):
             except KeyError:
                 return object.__getattribute__(self, attr)
 
+    def browse(self) -> None:
+        lnk = [e for e in self.Links if e.get("rel", None) == "self"]
+        if lnk:
+            webbrowser.open(lnk[0].get("href"))
 
-class Conversion(EpsgElement):
-    ""
-
-
-class CoordSystem(EpsgElement):
-    ""
-
-
-class CoordOperationMethod(EpsgElement):
-    ""
-
-
-class CoordOperationParameter(EpsgElement):
-    ""
-
-
-class Datum(EpsgElement):
-    ""
+    def populate(self):
+        """
+        Populate the EPSG dataset element. This method is meant to be
+        overridden by subclasses.
+        """
+        pass
 
 
 class Unit(EpsgElement):
+    """
+    Represents a unit in EPSG dataset.
+
+    Attributes:
+        ratio (float): The ratio value of the unit.
+    """
 
     def populate(self):
         self._struct_ = src.Unit()
-        self._struct_.ratio = self.FactorC / self.FactorB
+        if self.FactorB != 0:
+            self._struct_.ratio = self.FactorC / self.FactorB
+        else:
+            self._struct_.ratio = 1
+
+    def from_target(self, value: Union[int, float]) -> float:
+        """
+        Convert a value to the dataset specific unit.
+
+        ```python
+        >>> u = epsglide.dataset.Unit(9003)
+        >>> u
+        <Unit 9003: US survey foot>
+        >>> u.from_target(1) # convert one metre into US survey foot
+        3.2808333333333333
+        ```
+
+        Arguments:
+            value (int|float): the value to be converted.
+
+        Returns:
+            float|None: the converted value, or None if no conversion is
+                possible.
+        """
+        return value * self.ratio
+
+    def to_target(self, value: Union[int, float]) -> float:
+        """
+        Convert a value to computation specific units.
+
+        ```python
+        >>> u = epsglide.dataset.Unit(9002)
+        >>> u
+        <Unit 9002: foot>
+        >>> u.to_target(1) # convert one international feet into meters
+        0.3048
+        ```
+
+        Arguments:
+            value (int|float): the value to be converted.
+
+        Returns:
+            float|None: the converted value, or None if no conversion is
+                possible.
+        """
+        return value / self.ratio
 
 
 class PrimeMeridian(EpsgElement):
+    """
+    Represents a prime meridian in EPSG dataset.
+
+    Attributes:
+        longitude (float): The longitude value of the prime meridian.
+    """
 
     def populate(self):
         self._struct_ = src.Prime()
@@ -322,3 +335,24 @@ class GeodeticCoordRefSystem(EpsgElement):
                     f"unmanageable parameter {param['ParameterCode']}: "
                     f"{param['Name']}"
                 )
+
+
+# class are defined here only to allow EPSG element tree.
+class Conversion(EpsgElement):
+    pass
+
+
+class CoordSystem(EpsgElement):
+    pass
+
+
+class CoordOperationMethod(EpsgElement):
+    pass
+
+
+class CoordOperationParameter(EpsgElement):
+    pass
+
+
+class Datum(EpsgElement):
+    pass
