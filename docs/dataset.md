@@ -2,6 +2,54 @@
 
 # epsglide.dataset
 
+<a id="epsglide.dataset.DATA"></a>
+
+#### DATA
+
+Path where json dataset are stored. On each EPSG dataset request, json data
+are stored on this local path to allow introspection when needed and faster
+execution.
+
+<a id="epsglide.dataset.DatasetConnexionError"></a>
+
+## DatasetConnexionError Objects
+
+```python
+class DatasetConnexionError(Exception)
+```
+
+Exception raised when EPSG API is not available.
+
+<a id="epsglide.dataset.DatasetNotFound"></a>
+
+## DatasetNotFound Objects
+
+```python
+class DatasetNotFound(Exception)
+```
+
+Exception raised when API call status code is not 200.
+
+<a id="epsglide.dataset.DatasetIdentificationError"></a>
+
+## DatasetIdentificationError Objects
+
+```python
+class DatasetIdentificationError(Exception)
+```
+
+Exception raised when EpsgElement initialized with no info.
+
+<a id="epsglide.dataset.DatumInitializationError"></a>
+
+## DatumInitializationError Objects
+
+```python
+class DatumInitializationError(Exception)
+```
+
+Exception raised when unmanageable datum parameter occurs.
+
 <a id="epsglide.dataset.EpsgElement"></a>
 
 ## EpsgElement Objects
@@ -57,28 +105,21 @@ def populate()
 Populate the EPSG dataset element. This method is meant to be
 overridden by subclasses.
 
-<a id="epsglide.dataset.EpsgElement.to_target"></a>
+<a id="epsglide.dataset.Unit"></a>
 
-#### to\_target
+## Unit Objects
 
 ```python
-def to_target(value: Union[int, float]) -> float
+class Unit(EpsgElement)
 ```
 
-Convert a value to the target unit, if applicable, ie: the
-`EpsgElement` must contain a `Unit` class as attribute.
+Represents a unit in EPSG dataset.
 
-**Arguments**:
+**Attributes**:
 
-- `value` _int|float_ - the value to be converted.
-  
+- `ratio` _float_ - The ratio value of the unit.
 
-**Returns**:
-
-- `float|None` - the converted value, or None if no conversion is
-  possible.
-
-<a id="epsglide.dataset.EpsgElement.from_target"></a>
+<a id="epsglide.dataset.Unit.from_target"></a>
 
 #### from\_target
 
@@ -86,8 +127,16 @@ Convert a value to the target unit, if applicable, ie: the
 def from_target(value: Union[int, float]) -> float
 ```
 
-Convert a value from the target unit, if applicable, ie: the
-`EpsgElement` must contain a `Unit` class as attribute.
+Convert a value to the dataset specific unit.
+
+
+```python
+>>> u = epsglide.dataset.Unit(9003)
+>>> u
+<Unit 9003: US survey foot>
+>>> u.from_target(1) # convert one metre into US survey foot
+3.2808333333333333
+```
 
 **Arguments**:
 
@@ -98,6 +147,49 @@ Convert a value from the target unit, if applicable, ie: the
 
 - `float|None` - the converted value, or None if no conversion is
   possible.
+
+<a id="epsglide.dataset.Unit.to_target"></a>
+
+#### to\_target
+
+```python
+def to_target(value: Union[int, float]) -> float
+```
+
+Convert a value to computation specific units.
+
+
+```python
+>>> u = epsglide.dataset.Unit(9002)
+>>> u
+<Unit 9002: foot>
+>>> u.to_target(1) # convert one international feet into meters
+0.3048
+```
+
+**Arguments**:
+
+- `value` _int|float_ - the value to be converted.
+  
+
+**Returns**:
+
+- `float|None` - the converted value, or None if no conversion is
+  possible.
+
+<a id="epsglide.dataset.PrimeMeridian"></a>
+
+## PrimeMeridian Objects
+
+```python
+class PrimeMeridian(EpsgElement)
+```
+
+Represents a prime meridian in EPSG dataset.
+
+**Attributes**:
+
+- `longitude` _float_ - The longitude value of the prime meridian.
 
 <a id="epsglide.dataset.Ellipsoid"></a>
 

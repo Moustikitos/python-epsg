@@ -1,9 +1,11 @@
 loaders:
   - type: python
+
 processors:
   - type: filter
   - type: smart
   - type: crossref
+
 renderer:
   output_directory: .
   content_directory_name: docs
@@ -16,14 +18,21 @@ renderer:
     - title: EPSGlide
       contents:
         - epsglide.ProjectedCoordRefSystem*
+        - epsglide.distance
+        - epsglide.destination
+        - epsglide.to_crs
+        - epsglide.to_wgs84
     - title: Geodesy
       contents:
         - epsglide.geodesy*
     - title: Dataset
       contents:
-        - epsglide.dataset.EpsgElement* 
-        - epsglide.dataset.Ellipsoid*
-        - epsglide.dataset.GeodeticCoordRefSystem*
+        - epsglide.dataset.*
+        # - epsglide.dataset.Ellipsoid*
+        # - epsglide.dataset.GeodeticCoordRefSystem*
+    - title: C code
+      contents:
+        - epsglide.src*
 
   mkdocs_config:
     site_name: The EPSGlide Project

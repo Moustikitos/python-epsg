@@ -9,7 +9,7 @@ This package aims to perform simple requests to [`EPSG GeoRepository API`](https
 >>> crs = epsglide.ProjectedCoordRefSystem(26730)
 >>> crs
 <ProjectedCoordRefSystem 26730: NAD27 / Alabama West>
->>> point = epsglide.Geodesic(math.degrees(crs.lambda0), math.degrees(crs.phi0))
+>>> point = epsglide.Geodetic(math.degrees(crs.lambda0), math.degrees(crs.phi0))
 >>> crs(point)
 <US survey foot:3.281[X=152400.305 Y=0.000] alt=0.000>
 >>> crs(crs(point))
@@ -31,8 +31,8 @@ This package aims to perform simple requests to [`EPSG GeoRepository API`](https
 
 ```python
 >>> wgs84 = epsglide.dataset.Ellipsoid(7030)
->>> dublin = epsglide.Geodesic(-6.272877, 53.344606, 105.)
->>> london = epsglide.Geodesic(-0.127005, 51.518602, 0.)
+>>> dublin = epsglide.Geodetic(-6.272877, 53.344606, 105.)
+>>> london = epsglide.Geodetic(-0.127005, 51.518602, 0.)
 >>> dist = wgs84.distance(dublin, london) 
 >>> dist
 <464.572km initial bearing=113.5° final bearing118.3°>
