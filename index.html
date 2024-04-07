@@ -112,8 +112,9 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="python-epsglide-package">Python <code>epsglide</code> package</h1>
-<p>This package aims to perform simple requests to <a href="https://apps.epsg.org/api/swagger/ui/index"><code>EPSG GeoRepository API</code></a> and provides associated geodesic computation and map projections.</p>
+<p>This package aims to perform simple requests to <a href="https://apps.epsg.org/api/swagger/ui/index"><code>EPSG GeoRepository API</code></a> and use associated geodesic computation or map projections.</p>
 <h2 id="epsg-dataset-requests-and-projection">EPSG dataset requests and projection</h2>
+<p><code>epslide</code> provides several dataset classes to manage parameters and populate the toplevel class <code>ProjectedCoordRefSystem</code>. This toplevel class allow projection and contains other dataset classes to perform geodetic computations.</p>
 <pre><code class="language-python">&gt;&gt;&gt; import math, epsglide
 &gt;&gt;&gt; crs = epsglide.ProjectedCoordRefSystem(26730)
 &gt;&gt;&gt; crs
@@ -145,8 +146,8 @@
 &lt;lon=-000d07m37.21800s lat=+051d31m6.96720s alt=0.0&gt;
 </code></pre>
 <h2 id="support-this-project">Support this project</h2>
-<p><a href="https://liberapay.com/Toons/donate"><img alt="Liberapay receiving" src="https://img.shields.io/liberapay/goal/Toons?logo=liberapay" /></a>
-<a href="https://paypal.me/toons"><img alt="Paypal me" src="https://img.shields.io/badge/PayPal-toons-00457C?logo=paypal&amp;logoColor=white" /></a>
+<!-- [![Liberapay receiving](https://img.shields.io/liberapay/goal/Toons?logo=liberapay)](https://liberapay.com/Toons/donate) -->
+<p><a href="https://paypal.me/toons"><img alt="Paypal me" src="https://img.shields.io/badge/PayPal-toons-00457C?logo=paypal&amp;logoColor=white" /></a>
 <a href="https://github.com/Moustikitos/python-epsg/blob/master/docs/img/bc1q6aqr0hfq6shwlaux8a7ydvncw53lk2zynp277x.png"><img alt="Bitcoin" src="https://img.shields.io/badge/Donate-bc1q6aqr0hfq6shwlaux8a7ydvncw53lk2zynp277x-ff9900?logo=bitcoin" /></a></p></div>
             </div>
         </div>
@@ -231,5 +232,5 @@
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-02-25 10:42:06.654326+00:00
+Build Date UTC : 2024-04-07 15:20:47.239721+00:00
 -->

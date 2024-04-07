@@ -86,7 +86,7 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#epsglidedataset" class="nav-link">epsglide.dataset</a>
+            <li class="nav-item" data-level="1"><a href="#module-epsglidedataset" class="nav-link">Module epsglide.dataset</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-level="2"><a href="#datasetconnexionerror-objects" class="nav-link">DatasetConnexionError Objects</a>
               <ul class="nav flex-column">
@@ -132,9 +132,9 @@
                     <div class="col-md-9" role="main">
 
 <p><a id="epsglide.dataset"></a></p>
-<h1 id="epsglidedataset">epsglide.dataset</h1>
+<h1 id="module-epsglidedataset">Module epsglide.dataset</h1>
 <p><a id="epsglide.dataset.DATA"></a></p>
-<h4 id="data">DATA</h4>
+<h4 id="epsglidedatasetdata">epsglide.dataset.DATA</h4>
 <p>Path where json dataset are stored. On each EPSG dataset request, json data
 are stored on this local path to allow introspection when needed and faster
 execution.</p>
@@ -181,7 +181,7 @@ execution.</p>
   implemented yet).</li>
 </ul>
 <p><a id="epsglide.dataset.EpsgElement.__repr__"></a></p>
-<h4 id="__repr__">__repr__</h4>
+<h3 id="epsgelement__repr__">EpsgElement.__repr__</h3>
 <pre><code class="language-python">def __repr__()
 </code></pre>
 <p>Return a string representation of the <code>EpsgElement</code> object.</p>
@@ -191,7 +191,7 @@ execution.</p>
   <code>&lt;ClassName Code: Name&gt;</code>.</li>
 </ul>
 <p><a id="epsglide.dataset.EpsgElement.populate"></a></p>
-<h4 id="populate">populate</h4>
+<h3 id="epsgelementpopulate">EpsgElement.populate</h3>
 <pre><code class="language-python">def populate()
 </code></pre>
 <p>Populate the EPSG dataset element. This method is meant to be
@@ -206,7 +206,7 @@ overridden by subclasses.</p>
 <li><code>ratio</code> <em>float</em> - The ratio value of the unit.</li>
 </ul>
 <p><a id="epsglide.dataset.Unit.from_target"></a></p>
-<h4 id="from_target">from_target</h4>
+<h3 id="unitfrom_target">Unit.from_target</h3>
 <pre><code class="language-python">def from_target(value: Union[int, float]) -&gt; float
 </code></pre>
 <p>Convert a value to the dataset specific unit.</p>
@@ -226,7 +226,7 @@ overridden by subclasses.</p>
   possible.</li>
 </ul>
 <p><a id="epsglide.dataset.Unit.to_target"></a></p>
-<h4 id="to_target">to_target</h4>
+<h3 id="unitto_target">Unit.to_target</h3>
 <pre><code class="language-python">def to_target(value: Union[int, float]) -&gt; float
 </code></pre>
 <p>Convert a value to computation specific units.</p>
@@ -266,7 +266,7 @@ systems.</p>
   including parameters related to its shape and size.</li>
 </ul>
 <p><a id="epsglide.dataset.Ellipsoid.populate"></a></p>
-<h4 id="populate_1">populate</h4>
+<h3 id="ellipsoidpopulate">Ellipsoid.populate</h3>
 <pre><code class="language-python">def populate()
 </code></pre>
 <p>Populate the <code>Ellipsoid</code> object with necessary data.</p>
@@ -288,7 +288,7 @@ and semi-minor axes.</p>
   data, including datum and transformation parameters.</li>
 </ul>
 <p><a id="epsglide.dataset.GeodeticCoordRefSystem.populate"></a></p>
-<h4 id="populate_2">populate</h4>
+<h3 id="geodeticcoordrefsystempopulate">GeodeticCoordRefSystem.populate</h3>
 <pre><code class="language-python">def populate()
 </code></pre>
 <p>Populate the <code>GeodeticCoordRefSystem</code> object with necessary data.</p>

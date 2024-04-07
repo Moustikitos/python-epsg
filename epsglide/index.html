@@ -86,8 +86,24 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#epsglide" class="nav-link">epsglide</a>
+            <li class="nav-item" data-level="1"><a href="#module-epsglide" class="nav-link">Module epsglide</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#distance" class="nav-link">distance</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#destination" class="nav-link">destination</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#to_crs" class="nav-link">to_crs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#to_wgs84" class="nav-link">to_wgs84</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-level="2"><a href="#projectedcoordrefsystem-objects" class="nav-link">ProjectedCoordRefSystem Objects</a>
               <ul class="nav flex-column">
               </ul>
@@ -100,11 +116,11 @@
                     <div class="col-md-9" role="main">
 
 <p><a id="epsglide"></a></p>
-<h1 id="epsglide">epsglide</h1>
+<h1 id="module-epsglide">Module epsglide</h1>
 <p>This package aims to perform simple requests to <a href="https://apps.epsg.org/api/swagger/ui/index"><code>EPSG GeoRepository API</code></a> and provides associated geodesic
 computation and map projection.</p>
 <p><a id="epsglide.distance"></a></p>
-<h4 id="distance">distance</h4>
+<h2 id="distance">distance</h2>
 <pre><code class="language-python">def distance(obj: dataset.Ellipsoid, start: Geodetic,
              stop: Geodetic) -&gt; Vincenty_dist
 </code></pre>
@@ -121,7 +137,7 @@ computation and map projection.</p>
 <li><code>Vincenty_dist</code> - The distance between the two points.</li>
 </ul>
 <p><a id="epsglide.destination"></a></p>
-<h4 id="destination">destination</h4>
+<h2 id="destination">destination</h2>
 <pre><code class="language-python">def destination(obj: dataset.Ellipsoid, start: Geodetic,
                 dist: Vincenty_dist) -&gt; Vincenty_dest
 </code></pre>
@@ -139,7 +155,7 @@ distance.</p>
 <li><code>Vincenty_dest</code> - The destination point.</li>
 </ul>
 <p><a id="epsglide.to_crs"></a></p>
-<h4 id="to_crs">to_crs</h4>
+<h2 id="to_crs">to_crs</h2>
 <pre><code class="language-python">def to_crs(obj: dataset.GeodeticCoordRefSystem,
            crs: dataset.GeodeticCoordRefSystem, lla: Geodetic) -&gt; Geodetic
 </code></pre>
@@ -158,7 +174,7 @@ another.</p>
 <li><code>Geodetic</code> - The converted coordinates.</li>
 </ul>
 <p><a id="epsglide.to_wgs84"></a></p>
-<h4 id="to_wgs84">to_wgs84</h4>
+<h2 id="to_wgs84">to_wgs84</h2>
 <pre><code class="language-python">def to_wgs84(obj: dataset.GeodeticCoordRefSystem, lla: Geodetic) -&gt; Geodetic
 </code></pre>
 <p>Convert coordinates from a geodetic coordinate reference system to WGS84.</p>
@@ -197,13 +213,13 @@ coordinates to flat map (geographic coordinates).</p>
 <li><code>parameters</code> <em>list</em> - list of <code>dataset.CoordOperationParameter</code>.</li>
 </ul>
 <p><a id="epsglide.ProjectedCoordRefSystem.__call__"></a></p>
-<h4 id="__call__">__call__</h4>
+<h3 id="projectedcoordrefsystem__call__">ProjectedCoordRefSystem.__call__</h3>
 <pre><code class="language-python">def __call__(
     element: typing.Union[Geodetic, Geographic]
 ) -&gt; typing.Union[Geodetic, Geographic]
 </code></pre>
 <p><a id="epsglide.ProjectedCoordRefSystem.transform"></a></p>
-<h4 id="transform">transform</h4>
+<h3 id="projectedcoordrefsystemtransform">ProjectedCoordRefSystem.transform</h3>
 <pre><code class="language-python">def transform(element: typing.Union[Geodetic, Geographic],
               dest_crs) -&gt; Geographic
 </code></pre></div>
