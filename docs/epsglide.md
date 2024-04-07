@@ -1,13 +1,13 @@
 <a id="epsglide"></a>
 
-# epsglide
+# Module epsglide
 
 This package aims to perform simple requests to [`EPSG GeoRepository API`](https://apps.epsg.org/api/swagger/ui/index) and provides associated geodesic
 computation and map projection.
 
 <a id="epsglide.distance"></a>
 
-#### distance
+## distance
 
 ```python
 def distance(obj: dataset.Ellipsoid, start: Geodetic,
@@ -30,7 +30,7 @@ Calculate the distance between two points on the ellipsoid surface.
 
 <a id="epsglide.destination"></a>
 
-#### destination
+## destination
 
 ```python
 def destination(obj: dataset.Ellipsoid, start: Geodetic,
@@ -54,7 +54,7 @@ distance.
 
 <a id="epsglide.to_crs"></a>
 
-#### to\_crs
+## to\_crs
 
 ```python
 def to_crs(obj: dataset.GeodeticCoordRefSystem,
@@ -79,7 +79,7 @@ another.
 
 <a id="epsglide.to_wgs84"></a>
 
-#### to\_wgs84
+## to\_wgs84
 
 ```python
 def to_wgs84(obj: dataset.GeodeticCoordRefSystem, lla: Geodetic) -> Geodetic
@@ -132,7 +132,7 @@ coordinates to flat map (geographic coordinates).
 
 <a id="epsglide.ProjectedCoordRefSystem.__call__"></a>
 
-#### \_\_call\_\_
+### ProjectedCoordRefSystem.\_\_call\_\_
 
 ```python
 def __call__(
@@ -144,7 +144,7 @@ def __call__(
 
 <a id="epsglide.ProjectedCoordRefSystem.transform"></a>
 
-#### transform
+### ProjectedCoordRefSystem.transform
 
 ```python
 def transform(element: typing.Union[Geodetic, Geographic],

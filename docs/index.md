@@ -1,8 +1,10 @@
 # Python `epsglide` package
 
-This package aims to perform simple requests to [`EPSG GeoRepository API`](https://apps.epsg.org/api/swagger/ui/index) and provides associated geodesic computation and map projections.
+This package aims to perform simple requests to [`EPSG GeoRepository API`](https://apps.epsg.org/api/swagger/ui/index) and use associated geodesic computation or map projections.
 
 ## EPSG dataset requests and projection
+
+`epslide` provides several dataset classes to manage parameters and populate the toplevel class `ProjectedCoordRefSystem`. This toplevel class allow projection and contains other dataset classes to perform geodetic computations.
 
 ```python
 >>> import math, epsglide
@@ -44,6 +46,6 @@ This package aims to perform simple requests to [`EPSG GeoRepository API`](https
 
 ## Support this project
 
-[![Liberapay receiving](https://img.shields.io/liberapay/goal/Toons?logo=liberapay)](https://liberapay.com/Toons/donate)
+<!-- [![Liberapay receiving](https://img.shields.io/liberapay/goal/Toons?logo=liberapay)](https://liberapay.com/Toons/donate) -->
 [![Paypal me](https://img.shields.io/badge/PayPal-toons-00457C?logo=paypal&logoColor=white)](https://paypal.me/toons)
 [![Bitcoin](https://img.shields.io/badge/Donate-bc1q6aqr0hfq6shwlaux8a7ydvncw53lk2zynp277x-ff9900?logo=bitcoin)](https://github.com/Moustikitos/python-epsg/blob/master/docs/img/bc1q6aqr0hfq6shwlaux8a7ydvncw53lk2zynp277x.png)

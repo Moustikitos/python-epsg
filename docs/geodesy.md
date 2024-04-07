@@ -1,6 +1,6 @@
 <a id="epsglide.geodesy"></a>
 
-# epsglide.geodesy
+# Module epsglide.geodesy
 
 Module for handling geodetic coordinates and their representations.
 
@@ -64,7 +64,7 @@ The associated GARS area (5minx5min tile) can also be provided.
 
 <a id="epsglide.geodesy.Geodetic.maidenhead"></a>
 
-#### maidenhead
+### Geodetic.maidenhead
 
 ```python
 def maidenhead(level: int = 4) -> str
@@ -91,7 +91,7 @@ using `level` parameter.
 
 <a id="epsglide.geodesy.Geodetic.from_maidenhead"></a>
 
-#### from\_maidenhead
+### Geodetic.from\_maidenhead
 
 ```python
 @staticmethod
@@ -120,7 +120,7 @@ Return Geodetic object from maidenhead string.
 
 <a id="epsglide.geodesy.Geodetic.georef"></a>
 
-#### georef
+### Geodetic.georef
 
 ```python
 def georef(digit: int = 8) -> str
@@ -148,7 +148,7 @@ maximul of 8 digit (default). With this level, the precision is about
 
 <a id="epsglide.geodesy.Geodetic.from_georef"></a>
 
-#### from\_georef
+### Geodetic.from\_georef
 
 ```python
 @staticmethod
@@ -185,7 +185,7 @@ Return Geodetic object from georef.
 
 <a id="epsglide.geodesy.Geodetic.gars"></a>
 
-#### gars
+### Geodetic.gars
 
 ```python
 def gars() -> str
@@ -200,7 +200,7 @@ Get the associated GARS Area (5minx5min tile).
 
 <a id="epsglide.geodesy.Geodetic.from_gars"></a>
 
-#### from\_gars
+### Geodetic.from\_gars
 
 ```python
 @staticmethod
@@ -232,7 +232,7 @@ where to handle 5minx5min tile.
 
 <a id="epsglide.geodesy.Geodetic.geohash"></a>
 
-#### geohash
+### Geodetic.geohash
 
 ```python
 def geohash(digit: int = 10,
@@ -260,7 +260,7 @@ parameter.
 
 <a id="epsglide.geodesy.Geodetic.from_geohash"></a>
 
-#### from\_geohash
+### Geodetic.from\_geohash
 
 ```python
 @staticmethod
@@ -296,7 +296,7 @@ Return Geodetic object from geohash.
 
 <a id="epsglide.geodesy.Geodetic.url_load_location"></a>
 
-#### url\_load\_location
+### Geodetic.url\_load\_location
 
 ```python
 def url_load_location(url, **kwargs)
@@ -333,7 +333,7 @@ Return a static map image data from map provider.
 
 <a id="epsglide.geodesy.Geodetic.dump_location"></a>
 
-#### dump\_location
+### Geodetic.dump\_location
 
 ```python
 def dump_location(name, url, **kwargs)

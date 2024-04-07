@@ -34,6 +34,19 @@ renderer:
       contents:
         - epsglide.src*
 
+  markdown:
+    use_fixed_header_levels: true
+    header_level_by_type:
+      Module: 1
+      Class: 2
+      Method: 3
+      Function: 2
+      Data: 4
+    add_module_prefix: true
+    add_method_class_prefix: true
+    add_member_class_prefix: true
+    descriptive_module_title: true
+
   mkdocs_config:
     site_name: The EPSGlide Project
     repo_url: https://github.com/Moustikitos/python-epsg

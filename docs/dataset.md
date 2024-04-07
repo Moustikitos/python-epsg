@@ -1,10 +1,10 @@
 <a id="epsglide.dataset"></a>
 
-# epsglide.dataset
+# Module epsglide.dataset
 
 <a id="epsglide.dataset.DATA"></a>
 
-#### DATA
+#### epsglide.dataset.DATA
 
 Path where json dataset are stored. On each EPSG dataset request, json data
 are stored on this local path to allow introspection when needed and faster
@@ -81,7 +81,7 @@ Represents an EPSG dataset element.
 
 <a id="epsglide.dataset.EpsgElement.__repr__"></a>
 
-#### \_\_repr\_\_
+### EpsgElement.\_\_repr\_\_
 
 ```python
 def __repr__()
@@ -96,7 +96,7 @@ Return a string representation of the `EpsgElement` object.
 
 <a id="epsglide.dataset.EpsgElement.populate"></a>
 
-#### populate
+### EpsgElement.populate
 
 ```python
 def populate()
@@ -121,7 +121,7 @@ Represents a unit in EPSG dataset.
 
 <a id="epsglide.dataset.Unit.from_target"></a>
 
-#### from\_target
+### Unit.from\_target
 
 ```python
 def from_target(value: Union[int, float]) -> float
@@ -150,7 +150,7 @@ Convert a value to the dataset specific unit.
 
 <a id="epsglide.dataset.Unit.to_target"></a>
 
-#### to\_target
+### Unit.to\_target
 
 ```python
 def to_target(value: Union[int, float]) -> float
@@ -209,7 +209,7 @@ systems.
 
 <a id="epsglide.dataset.Ellipsoid.populate"></a>
 
-#### populate
+### Ellipsoid.populate
 
 ```python
 def populate()
@@ -243,7 +243,7 @@ Represents a geodetic coordinate reference system.
 
 <a id="epsglide.dataset.GeodeticCoordRefSystem.populate"></a>
 
-#### populate
+### GeodeticCoordRefSystem.populate
 
 ```python
 def populate()

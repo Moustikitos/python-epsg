@@ -1,6 +1,6 @@
 <a id="epsglide.src"></a>
 
-# epsglide.src
+# Module epsglide.src
 
 <a id="epsglide.src.Unit"></a>
 
