@@ -274,6 +274,7 @@ def barycentre(*points) -> Vector:
     """
     x, y, z = [], [], []
     dx, dy, dz = [], [], []
+    n = len(points)
 
     for point in points:
         x += [point[0]]
@@ -291,11 +292,12 @@ def barycentre(*points) -> Vector:
     ky = [(min_dy + 1.0 - k / max_dy) for k in dy]
     kz = [(min_dz + 1.0 - k / max_dz) for k in dz]
 
-    return Vector([
-        sum(a * k for a, k in zip(x, kx)) / sum(kx),
-        sum(a * k for a, k in zip(y, ky)) / sum(ky),
-        sum(a * k for a, k in zip(z, kz)) / sum(kz)
-    ])
+    return Point([
+            sum(a * k for a, k in zip(x, kx)) / sum(kx),
+            sum(a * k for a, k in zip(y, ky)) / sum(ky),
+            sum(a * k for a, k in zip(z, kz)) / sum(kz)
+        ], dx=sum(dx)/n, dy=sum(dy)/n, dz=sum(dz)/n
+    )
 
 
 def triangulate(
@@ -336,17 +338,29 @@ def triangulate(
 
     return Point(
         barycentre((A + a * u), (B + b * v)),
-        dx = (A.dx + B.dx) / 2, dy = (A.dy + B.dy) / 2, dz = (A.dz + B.dz) / 2
+        dx = (getattr(A, "dx", 0.) + getattr(B, "dx", 0.)) / 2,
+        dy = (getattr(A, "dy", 0.) + getattr(B, "dy", 0.)) / 2,
+        dz = (getattr(A, "dz", 0.) + getattr(B, "dz", 0.)) / 2
     )
 
 
+def localize(*items):
+    points = []
+    for i in range(0, len(items)-1, 1):
+        for j in range(i+1, len(items), 1):
+            points.append(triangulate(*items[i], *items[j]))
+    return barycentre(*points)
+
+
 if __name__ == "__main__":
-    m = Matrix.ned2efec(5.0,45.0)
+    m = Matrix.ned2efec(5.0, 45.0)
     A = Point([0, 0, 0], dx=1, dy=1, dz=5)
-    B = Point([10, 0, 10], dx=1, dy=2, dz=10)
+    #B = Point([10, 0, 10], dx=1, dy=2, dz=10)
+    C = Point([10, 0, 0], dx=1, dy=2, dz=10)
     u = Vector([0.2, 10, 0])
-    v = Vector([-0.02, 10, 0])
+    #v = Vector([-0.02, 10, -0.02])
+    w = Vector([-0.02, 10, 0])
 
     print(m[0] @ m[1], "\n\n", m[2], sep="")
     print("\n", m @ m.transpose(), sep="")
-    print("\n", triangulate(A, u, B, v), sep="")
+    print("\n", localize((A, u), (C, w), ), sep="")
