@@ -37,7 +37,7 @@ This package aims to perform simple requests to [`EPSG GeoRepository API`](https
 >>> london = epsglide.Geodetic(-0.127005, 51.518602, 0.)
 >>> dist = wgs84.distance(dublin, london) 
 >>> dist
-<464.572km initial bearing=113.5° final bearing118.3°>
+<464.572km initial bearing=113.5° final bearing=118.3°>
 >>> wgs84.destination(dublin, dist) 
 <lon=-000d07m37.21798s lat=+051d31m6.96719s end bearing=118.3°>
 >>> london

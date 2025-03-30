@@ -125,7 +125,7 @@ class Vincenty_dist(ctypes.Structure):
         return \
             f"<{self.distance/1000:.3f}km " \
             f"initial bearing={math.degrees(self.initial_bearing):.1f}° " \
-            f"final bearing{math.degrees(self.final_bearing):.1f}°>"
+            f"final bearing={math.degrees(self.final_bearing):.1f}°>"
 
 
 class Vincenty_dest(ctypes.Structure):
