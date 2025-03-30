@@ -225,7 +225,7 @@ class Point(Vector):
         self.dz = kwargs.pop("dz", 0.)
         Vector.__init__(self, *args, **kwargs)
 
-    def __add__(self, v: Vector) -> "Point":
+    def __add__(self, v: Union["Point", Vector]) -> "Point":
         """
         Adds a vector to a point component-wise.
 
@@ -235,12 +235,12 @@ class Point(Vector):
         Returns:
             Point: The resulting point after addition.
         """
-        return Point(
-            [a + b for a, b in zip(self, v)],
-            dx=self.dx, dy=self.dy, dz=self.dz
-        )
+        dx = self.dx + getattr(v, "dx", self.dx) / 2.0
+        dy = self.dy + getattr(v, "dy", self.dy) / 2.0
+        dz = self.dz + getattr(v, "dz", self.dz) / 2.0
+        return Point([a + b for a, b in zip(self, v)], dx=dx, dy=dy, dz=dz)
 
-    def __sub__(self, v: Vector) -> "Point":
+    def __sub__(self, v: Union["Point", Vector]) -> "Point":
         """
         Subtracts a vector from a point component-wise.
 
@@ -250,10 +250,10 @@ class Point(Vector):
         Returns:
             Point: The resulting point after subtraction.
         """
-        return Point(
-            [a - b for a, b in zip(self, v)],
-            dx=self.dx, dy=self.dy, dz=self.dz
-        )
+        dx = self.dx + getattr(v, "dx", self.dx) / 2.0
+        dy = self.dy + getattr(v, "dy", self.dy) / 2.0
+        dz = self.dz + getattr(v, "dz", self.dz) / 2.0
+        return Point([a - b for a, b in zip(self, v)], dx=dx, dy=dy, dz=dz)
 
     def __repr__(self) -> str:
         """Returns a string representation of the point with uncertainties."""
