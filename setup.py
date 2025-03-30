@@ -5,6 +5,13 @@ import sys
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
+try:
+    from importlib import machinery
+    lib_suffix = machinery.all_suffixes()[-1]
+except ImportError:
+    import imp
+    lib_suffix = imp.get_suffixes()[0][0]
+
 
 #: to build a pure .so or .dll file to be used within ctypes
 class CTypes(Extension):
@@ -29,7 +36,7 @@ class build_ctypes_ext(build_ext):
     def get_ext_filename(self, ext_name):
         if getattr(self, "_ctypes", False):
             return ext_name.replace(".", os.sep) + (
-                '.dll' if sys.platform.startswith("win") else '.so'
+                '.dll' if sys.platform.startswith("win") else lib_suffix
             )
         return super().get_ext_filename(ext_name)
 
