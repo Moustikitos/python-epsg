@@ -261,7 +261,7 @@ class Point(Vector):
                f"<dx={self.dx} dy={self.dy} dz={self.dz}>"
 
 
-def barycentre(*points) -> Vector:
+def barycentre(*points) -> Point:
     """
     Computes the weighted barycenter of given points.
     
@@ -319,25 +319,20 @@ def triangulate(
     u = u.normalize()
     v = v.normalize()
 
-    # A + a x u = B + b x v
-    # A - B = b x v - a x u
     C = A - B
-
-    # C = b x v - a x u
-    # 1) C.u = b x v.u - a x u.u = b x alpha - a
-    # 2) C.v = b x v.v - a x u.v = b - a x alpha
     Cu = C * u
     Cv = C * v
     alpha = u * v
     alpha2 = alpha * alpha
 
-    # |C.u   |alpha   -1    |   |b
-    # |C.v = |1       -alpha| x |a
-    a = (alpha*Cv - Cu) / (1 - alpha2)
-    b = (Cv - alpha*Cu) / (1 - alpha2)
+    if alpha2 == 1.0:
+        raise ValueError("No convergence possible")
 
     return Point(
-        barycentre((A + a * u), (B + b * v)),
+        barycentre(
+            (A + (alpha*Cv - Cu) / (1 - alpha2) * u),
+            (B + (Cv - alpha*Cu) / (1 - alpha2) * v)
+        ),
         dx = (getattr(A, "dx", 0.) + getattr(B, "dx", 0.)) / 2,
         dy = (getattr(A, "dy", 0.) + getattr(B, "dy", 0.)) / 2,
         dz = (getattr(A, "dz", 0.) + getattr(B, "dz", 0.)) / 2
@@ -355,11 +350,11 @@ def localize(*items):
 if __name__ == "__main__":
     m = Matrix.ned2efec(5.0, 45.0)
     A = Point([0, 0, 0], dx=1, dy=1, dz=5)
-    #B = Point([10, 0, 10], dx=1, dy=2, dz=10)
+    B = Point([10, 0, 10], dx=1, dy=2, dz=10)
     C = Point([10, 0, 0], dx=1, dy=2, dz=10)
-    u = Vector([0.2, 10, 0])
-    #v = Vector([-0.02, 10, -0.02])
-    w = Vector([-0.02, 10, 0])
+    u = Vector([-0.02, 10., 0])
+    v = Vector([-0.02, 10., 0])
+    w = Vector([-0.02, 10., 0])
 
     print(m[0] @ m[1], "\n\n", m[2], sep="")
     print("\n", m @ m.transpose(), sep="")
