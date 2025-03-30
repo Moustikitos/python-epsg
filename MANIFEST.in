@@ -1,2 +1,9 @@
 recursive-include src *.*
+include epsglide/.dataset/Conversion/15593.json
+include epsglide/.dataset/Datum/6326.json
+include epsglide/.dataset/Ellipsoid/7030.json
+include epsglide/.dataset/GeodeticCoordRefSystem/4326.json
+include epsglide/.dataset/PrimeMeridian/8901.json
+include epsglide/.dataset/Unit/9001.json
+include epsglide/.dataset/Unit/9102.json
 include VERSION
