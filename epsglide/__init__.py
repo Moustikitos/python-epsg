@@ -12,8 +12,7 @@ import math
 import ctypes
 import typing
 
-from epsglide import dataset
-from epsglide.geodesy import Geodetic, _dms
+from epsglide import dataset, geodesy
 
 _TORAD = math.pi/180.0
 _TODEG = 180.0/math.pi
@@ -34,6 +33,13 @@ def _get_file(name: str) -> str:
         if os.path.exists(filename):
             return filename
     raise IOError("%s data file not found" % name)
+
+
+class Geodetic(geodesy.Geodetic):
+    __doc__ = geodesy.Geodetic.__doc__
+
+    def xyz(self, ellps: dataset.Ellipsoid):
+        return geoid.geocentric(ellps._struct_, self)
 
 
 class Geocentric(ctypes.Structure):
@@ -62,6 +68,9 @@ class Geocentric(ctypes.Structure):
 
     def __repr__(self) -> str:
         return f"<X={self.x:.3f} Y={self.y:.3f} Z={self.z:.3f}>"
+    
+    def lla(self, ellps: dataset.Ellipsoid):
+        return geoid.geodetic(ellps._struct_, self)
 
 
 class Geographic(ctypes.Structure):
@@ -136,8 +145,8 @@ class Vincenty_dest(ctypes.Structure):
 
     def __repr__(self) -> str:
         return \
-            f"<lon={_dms(math.degrees(self.longitude))} " \
-            f"lat={_dms(math.degrees(self.latitude))} " \
+            f"<lon={geodesy._dms(math.degrees(self.longitude))} " \
+            f"lat={geodesy._dms(math.degrees(self.latitude))} " \
             f"end bearing={math.degrees(self.destination_bearing):.1f}°>"
 
 
